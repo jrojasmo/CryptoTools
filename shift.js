@@ -1,10 +1,13 @@
-var tools = require('./generalTools');
+var tools = require("./generalTools");
 
-function shiftCipher(clearText, key){
+function shiftCipher(clearText, key) {
     var size = 26;
-    if (key <= size - 1 && key >= 0){
-        var normalTextCodes = tools.getCharCodes(tools.normalizeInput(clearText), false);
-        for (i=0; i<normalTextCodes.length; i++){
+    if (key <= size - 1 && key >= 0) {
+        var normalTextCodes = tools.getCharCodes(
+            tools.normalizeInput(clearText),
+            false
+        );
+        for (var i = 0; i < normalTextCodes.length; i++) {
             normalTextCodes[i] = (normalTextCodes[i] + key) % size;
         }
         return tools.codesToString(normalTextCodes, true);
@@ -12,11 +15,35 @@ function shiftCipher(clearText, key){
     return "Invalid key.";
 }
 
-function shiftDecipher(cipherText, key){
+function shiftDecipher(cipherText, key) {
     var size = 26;
-    if (key <= size - 1 && key >= 0){
-        return shiftCipher(cipherText, ((size - key) % size));
+    if (key <= size - 1 && key >= 0) {
+        return shiftCipher(cipherText, (size - key) % size);
     }
     return "Invalid key.";
 }
-//console.log(shiftDecipher(shiftCipher("riagoalstrneauriaptlaeuniribteroennpueaebdherlsmos",10),10));
+
+function getAllDeciphers(cipherText) {
+    var size = 26;
+    var deciphers = [];
+    var copy = (" " + cipherText).slice(1);
+    for (var i = 0; i < size; i++) {
+        var array = [];
+        array.push([i]);
+        array.push(shiftDecipher(copy, i));
+        deciphers.push(array);
+    }
+    return deciphers;
+}
+
+/*var array = getAllDeciphers("a");
+for (var i = 0; i < 26; i++) {
+    console.log(array[i]);
+}*/
+
+/*console.log(
+    shiftDecipher(
+        shiftCipher("riagoalstrneauriaptlaeuniribteroennpueaebdherlsmos", 10),
+        10
+    )
+);*/
