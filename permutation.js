@@ -1,18 +1,25 @@
+var tools = require('./generalTools');
+
 function permutationCipher(clearText, permutation){
     if (isAValidPermutation(permutation)){
-        var normalTextCodes = getCharCodes(normalizeInput(clearText));
+        var normalTextCodes = tools.getCharCodes(tools.normalizeInput(clearText), true);
         var m = permutation.length;
         var indexPerm = 0;
         var auxList;
         for (i=0; i<normalTextCodes.length; i++){
             indexPerm = i%m;
-            if (indexPerm==0)
-                auxList = normalTextCodes.slice(i, i+m < normalTextCodes.length ? i+m : normalTextCodes.length);
+            if (indexPerm==0){
+                auxList = normalTextCodes.slice(i, i+m);
+                while (auxList.length<m) {
+                    auxList.push(26);
+                    normalTextCodes.push(26);
+                }
+            }
             normalTextCodes[i] = auxList[permutation.indexOf(indexPerm+1)];
         }
-        return codesToString(normalTextCodes);
+        return tools.codesToString(normalTextCodes, true);
     }
-    return "";
+    return "Invalid permutation.";
 }
 
 function permutationDecipher(cipherText, permutation, inversePerm){
@@ -23,7 +30,6 @@ function permutationDecipher(cipherText, permutation, inversePerm){
         for(i=0; i<permutation.length; i++){
             permutationInv[permutation[i]-1]=i+1;
         }
-        console.log(permutationInv);
         return permutationCipher(cipherText, permutationInv);
     }
 }
@@ -41,8 +47,8 @@ function isAValidPermutation(permutation){
     return true;
 }
 
-//console.log(permutationCipher(  "shesellsseashellsbytheseashore", [3, 6, 1, 5, 2, 4]))
-//console.log(permutationDecipher("eeslshsalseslshblehsyeethraeos", [3, 6, 1, 5, 2, 4], false))
+//console.log(permutationCipher("Gloria a nuestra patria libre, unión eterna de pueblos hermanos", [4, 7, 5, 1, 2, 3, 6]));
+console.log(permutationDecipher("riagoalstrneauriaptlaeuniribteroennpueaebdherlsmos..ao.n", [4, 7, 5, 1, 2, 3, 6]))
 
 function ranPermutation(size){
     var arr = new Array(size);
