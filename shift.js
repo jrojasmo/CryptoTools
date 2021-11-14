@@ -36,10 +36,10 @@ function getAllDeciphers(cipherText) {
     return deciphers;
 }
 
-var array = getAllDeciphers("abcfsdjhfg");
+/*var array = getAllDeciphers("abcfsdjhfg");
 for (var i = 0; i < 26; i++) {
     console.log(array[i]);
-}
+}*/
 
 /*console.log(
     shiftDecipher(
