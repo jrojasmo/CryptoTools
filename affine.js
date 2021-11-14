@@ -51,5 +51,23 @@ function affineDecipher(cipherText, key) {
     }
     return "Invalid key.";
 }
-//console.log(affineCipher("sdfaaferfer",[7,3]));
+
+function getAllDeciphers(cipherText) {
+    var size = 26;
+    var deciphers = [];
+
+    for (var i = 0; i < size; i++) {
+        if (gcd(26, i) == 1) {
+            for (var j = 0; j < size; j++) {
+                var array = [];
+                var copy = (" " + cipherText).slice(1);
+                array.push([i, j]);
+                array.push(affineDecipher(copy, array[0]));
+                deciphers.push(array);
+            }
+        }
+    }
+    return deciphers;
+}
+//console.log(getAllDeciphers("sdfaaferfer"));
 //console.log(affineDecipher("zymddmfsmfs",[7,3]));

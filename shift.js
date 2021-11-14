@@ -26,20 +26,20 @@ function shiftDecipher(cipherText, key) {
 function getAllDeciphers(cipherText) {
     var size = 26;
     var deciphers = [];
-    var copy = (" " + cipherText).slice(1);
     for (var i = 0; i < size; i++) {
         var array = [];
-        array.push([i]);
+        var copy = (" " + cipherText).slice(1);
+        array.push(i);
         array.push(shiftDecipher(copy, i));
         deciphers.push(array);
     }
     return deciphers;
 }
 
-/*var array = getAllDeciphers("a");
+var array = getAllDeciphers("abcfsdjhfg");
 for (var i = 0; i < 26; i++) {
     console.log(array[i]);
-}*/
+}
 
 /*console.log(
     shiftDecipher(
