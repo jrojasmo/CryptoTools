@@ -26,52 +26,31 @@ function vigenereDecipher(cipherText, key) {
 }
 
 //console.log(vigenereCipher(  "Una poderosa voluntad, una gloria grandiosa son tu herencia para toda la eternidad", "ussr"));
+/*
 console.log(
     vigenereDecipher(
         "ofsgivwiiksmidmensvlhsycijarajsexagjukgenmzvlwftcshrlslfxsdrylwihavrx",
         "ussr"
     )
 );
+*/
 
-function charFrecuency(text) {
+function charFrecuency(text, lenChar) {
     text = tools.normalizeInput(text);
-    var frecuencyMap = {
-        a: 0,
-        b: 0,
-        c: 0,
-        d: 0,
-        e: 0,
-        f: 0,
-        g: 0,
-        h: 0,
-        i: 0,
-        j: 0,
-        k: 0,
-        l: 0,
-        m: 0,
-        n: 0,
-        o: 0,
-        p: 0,
-        q: 0,
-        r: 0,
-        s: 0,
-        t: 0,
-        u: 0,
-        v: 0,
-        w: 0,
-        x: 0,
-        y: 0,
-        z: 0,
-    };
-    for (var i = 0; i < text.length; i++) {
-        frecuencyMap[text.charAt(i)] += 1 / text.length;
+    var frecuencyMap = {};
+    for (var i = 0; i < text.length - (lenChar - 1); i++) {
+        if  (frecuencyMap[text.substring(i, i + lenChar)])
+            frecuencyMap[text.substring(i, i + lenChar)] += 1 / (text.length - (lenChar - 1));
+        else
+            frecuencyMap[text.substring(i, i + lenChar)] = 1 / (text.length - (lenChar - 1));
     }
     return frecuencyMap;
 }
 
 console.log(
     charFrecuency(
-        "ofsgivwiiksmidmensvlhsycijarajsexagjukgenmzvlwftcshrlslfxsdrylwihavrx"
+        "ofsgivwiiksmidmensvlhsycijarajsexagjukgenmzvlwftcshrlslfxsdrylwihavrx",
+        2
     )
 );
 
