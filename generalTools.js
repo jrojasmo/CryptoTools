@@ -1,4 +1,4 @@
-// Función que sirve para reemplazar una letra xon acento con su letra original
+// Función que sirve para reemplazar una letra con acento con su letra original
 var rmAccents = function (inputText) {
     var accents = "ÁÄáäÓÖóöÉËéÇçÍÏíïÚÜúüÑñ";
     var noAccents = "AAaaOOooEEeeCcIIiiUUuuNn";
