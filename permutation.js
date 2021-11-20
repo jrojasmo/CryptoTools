@@ -1,5 +1,11 @@
+// Importar funciones de generalTools.
+const { normalizeInput, codesToString } = require("./generalTools");
 var tools = require("./generalTools");
 
+// Función que cifra con un permutación (permutation) un texto (clearText).
+// La permutación es un arreglo que guarda en la i-ésima posición el lugar a dónde permuta la letra.
+// Fue necesari rellenar con puntos el texto al final para que la longitud fuera un múltiplo del tamaño de la permutación y así
+// no perder información al final del texto.
 function permutationCipher(clearText, permutation) {
     if (isAValidPermutation(permutation)) {
         var normalTextCodes = tools.getCharCodes(
@@ -25,7 +31,9 @@ function permutationCipher(clearText, permutation) {
     return "Invalid permutation.";
 }
 
-function permutationDecipher(cipherText, permutation, inversePerm) {
+// Función que decifra un texto cifrado (cipherText) con una permutación, sabiendo la permutación inversa (si inversePerm=true)
+// o dada la permutación original se calcula su inversa para poder decifrar.
+function permutationDecipher(cipherText, permutation, inversePerm=false) {
     if (inversePerm) {
         return permutationCipher(cipherText, permutation);
     } else {
@@ -37,26 +45,38 @@ function permutationDecipher(cipherText, permutation, inversePerm) {
     }
 }
 
+// Función que revisa si una permutación es válida o no.
 function isAValidPermutation(permutation) {
     var dupMap = {};
     for (var i = 0; i < permutation.length; i++) {
         if (permutation[i] < 1 || permutation[i] > permutation.length)
             return false;
-        // Duplicates (?)
+        // Verificar duplicados.
         if (dupMap[permutation[i]]) return false;
         dupMap[permutation[i]] = true;
     }
     return true;
 }
 
-//console.log(permutationCipher("Gloria a nuestra patria libre, unión eterna de pueblos hermanos", [4, 7, 5, 1, 2, 3, 6]));
+// Ejemplo para permutationCipher y permutationDecipher
+console.log(
+    permutationCipher(
+        `I have a dream that my four little children will one day 
+        live in a nation where they will not be judged by the color 
+        of their skin but by the content of their character`, 
+        [8, 4, 6, 7, 2, 5, 3, 1]
+    )
+);
 console.log(
     permutationDecipher(
-        "riagoalstrneauriaptlaeuniribteroennpueaebdherlsmos..ao.n",
-        [4, 7, 5, 1, 2, 3, 6]
+        `redhaavimhtaamtetriflouydhlliectoilelnwrvyieldanintianaete
+        enrwhonilelywhgjdtubeoctedhbyehotlforobkniirsectethbyufnont
+        teoarhhceit.e.arctr`,
+        [8, 4, 6, 7, 2, 5, 3, 1]
     )
 );
 
+// Función que retorna una permutación aleatoria de tamaño (size).
 function ranPermutation(size) {
     var arr = new Array(size);
     for (var i = 0; i < arr.length; i++) arr[i] = i + 1;
@@ -70,5 +90,3 @@ function ranPermutation(size) {
     }
     return arr;
 }
-
-//console.log(ranPermutation(5));
