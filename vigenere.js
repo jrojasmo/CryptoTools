@@ -169,12 +169,12 @@ function splitStr(strText, m) {
 
 // Función que retorna todos los m índices de coincidencia de un texto.
 // Es buen m si los índices de coincidencia son cercanos a 0.065. Es un mal m si son cercanos a 0.038, así se escoge el m
-function getAllCoincidenceIndex(cipherText, m) {
+function getAllCoincidenceIndex(strText, m) {
     var out = [];
     if (m <= 0) {
         return out;
     }
-    var strToSend = splitStr(cipherText, m);
+    var strToSend = splitStr(strText, m);
     //console.log(strToSend)
     for (var i = 0; i < m; i++) {
         out.push(coinciIndex(strToSend[i]));
@@ -199,16 +199,16 @@ function getAllCoincidenceIndex(cipherText, m) {
     )
 ); */
 
-// Función de que retorna la M_g(y_i): la suma de para cada letra del alfabeto
+// Función de que retorna la M_g(strText): la suma de para cada letra del alfabeto
 // (probabilidad estándar de una letra en inglés)*(probabilidad de la letra corrida g posisciones en el texto).
 // Lo que, entre más cercano a 0.065, significa que esa letra se corrió k posiciones en el texto.
-function funM_g(str, g) {
+function funM_g(strText, g) {
     // Probabilidades estandar de encontrarse la i-ésima letra de un texto en inglés.  
     var standardProbabilities = 
         [0.082, 0.015, 0.028, 0.043, 0.127, 0.022, 0.020, 0.061, 0.070,
         0.002, 0.008, 0.040, 0.024, 0.067, 0.075, 0.019, 0.001, 0.060, 
         0.063, 0.091, 0.028, 0.010, 0.023, 0.001, 0.020, 0.001];
-    text = tools.normalizeInput(str);
+    text = tools.normalizeInput(strText);
     var frecuencies = {};
     for (var i = 0; i < text.length; i++) {
         if (frecuencies[text.charAt(i)])

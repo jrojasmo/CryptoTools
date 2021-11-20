@@ -1,4 +1,5 @@
-var rmSpanishAccents = function (inputText) {
+// Función que sirve para reemplazar una letra xon acento con su letra original
+var rmAccents = function (inputText) {
     var accents = "ÁÄáäÓÖóöÉËéÇçÍÏíïÚÜúüÑñ";
     var noAccents = "AAaaOOooEEeeCcIIiiUUuuNn";
     return inputText
@@ -10,13 +11,15 @@ var rmSpanishAccents = function (inputText) {
         .join("");
 };
 
-var normalizeInput = function (input) {
-    return rmSpanishAccents(input)
+// Función que quita todos los acentos, caracteres distintos a letras o puntos y los espacios de un texto (input)
+var normalizeInput = function (inputText) {
+    return rmAccents(inputText)
         .replaceAll(/[^a-zA-Z .]/g, "")
         .replaceAll(" ", "")
         .toLowerCase();
 };
 
+// Función que devieve un arreglo con los números asociados a cada letra del texto (inputText)
 var getCharCodes = function (inputText, allowDot = false) {
     const dict = {
         a: 0,
@@ -50,6 +53,7 @@ var getCharCodes = function (inputText, allowDot = false) {
     return inputText.split("").map((char) => dict[char]);
 };
 
+// Función que dado un arreglo de números devuelve un string con las letras asociadas a cada uno de ellos.
 var codesToString = function (inputArr, allowDot = false) {
     const dict = {
         0: "a",
