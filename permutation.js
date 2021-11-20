@@ -4,13 +4,12 @@ var tools = require("./generalTools");
 
 // Función que cifra con un permutación (permutation) un texto (clearText).
 // La permutación es un arreglo que guarda en la i-ésima posición el lugar a dónde permuta la letra.
-// Fue necesari rellenar con puntos el texto al final para que la longitud fuera un múltiplo del tamaño de la permutación y así
+// Fue necesario rellenar con 'x' el texto al final para que la longitud fuera un múltiplo del tamaño de la permutación y así
 // no perder información al final del texto.
 function permutationCipher(clearText, permutation) {
     if (isAValidPermutation(permutation)) {
         var normalTextCodes = tools.getCharCodes(
-            tools.normalizeInput(clearText),
-            true
+            tools.normalizeInput(clearText)
         );
         var m = permutation.length;
         var indexPerm = 0;
@@ -20,13 +19,13 @@ function permutationCipher(clearText, permutation) {
             if (indexPerm == 0) {
                 auxList = normalTextCodes.slice(i, i + m);
                 while (auxList.length < m) {
-                    auxList.push(26);
-                    normalTextCodes.push(26);
+                    auxList.push(23);
+                    normalTextCodes.push(23);
                 }
             }
             normalTextCodes[i] = auxList[permutation.indexOf(indexPerm + 1)];
         }
-        return tools.codesToString(normalTextCodes, true);
+        return tools.codesToString(normalTextCodes);
     }
     return "Invalid permutation.";
 }
@@ -59,7 +58,7 @@ function isAValidPermutation(permutation) {
 }
 
 // Ejemplo para permutationCipher y permutationDecipher
-console.log(
+/* console.log(
     permutationCipher(
         `I have a dream that my four little children will one day 
         live in a nation where they will not be judged by the color 
@@ -69,12 +68,12 @@ console.log(
 );
 console.log(
     permutationDecipher(
-        `redhaavimhtaamtetriflouydhlliectoilelnwrvyieldanintianaete
-        enrwhonilelywhgjdtubeoctedhbyehotlforobkniirsectethbyufnont
-        teoarhhceit.e.arctr`,
+        `redhaavimhtaamtetriflouydhlliectoilelnwrvyieldanintianaet
+        eenrwhonilelywhgjdtubeoctedhbyehotlforobkniirsectethbyufno
+        ntteoarhhceitxexarctr`,
         [8, 4, 6, 7, 2, 5, 3, 1]
     )
-);
+); */
 
 // Función que retorna una permutación aleatoria de tamaño (size).
 function ranPermutation(size) {
@@ -90,3 +89,28 @@ function ranPermutation(size) {
     }
     return arr;
 }
+
+// Función que retorna las posibles longitudes de la permutación de un texto (strText) cifrado
+function getAllPermutationLen(strText) {
+    var n = tools.normalizeInput(strText).length;
+    var divisors = [n];
+    if (n==1) {
+        return divisors.push(1);
+    }
+    for (var i = 2; i * i <= n; ++i){
+        if (n % i == 0) {
+            divisors.push(i);
+            if (i != n / i) 
+                divisors.push(n / i);
+        }
+    }
+    return divisors;
+}
+
+console.log(
+    getAllPermutationLen(
+        `redhaavimhtaamtetriflouydhlliectoilelnwrvyieldanintianaet
+        eenrwhonilelywhgjdtubeoctedhbyehotlforobkniirsectethbyufno
+        ntteoarhhceitxexarctr`
+    )
+);
