@@ -46,11 +46,13 @@ console.log(
 
 // Función que retorna una palabra aleatoria de longitud m, puede ser usada como clave.
 function ranKey(size) {
-    arrTemp = Array(size)
-        .fill()
+    var arrTemp = Array(size)
+        .fill(0)
         .map(() => Math.round(Math.random() * 25));
     return tools.codesToString(arrTemp);
 }
+
+console.log(ranKey(10));
 
 // Función que retorna la frecuencia de todas las subpalabras de longitud lenChar de un texto (text)
 function charFrecuency(text, lenChar) {
@@ -135,7 +137,7 @@ function kasiskiTest(cipherText, searchStr) {
 
 // Función que retorna el índice de coincidencias de un texto (strText)
 function coinciIndex(strText) {
-    text = tools.normalizeInput(strText);
+    var text = tools.normalizeInput(strText);
     var frecuencies = {};
     for (var i = 0; i < text.length; i++) {
         if (frecuencies[text.charAt(i)]) {
@@ -208,7 +210,7 @@ function funM_g(strText, g) {
         [0.082, 0.015, 0.028, 0.043, 0.127, 0.022, 0.020, 0.061, 0.070,
         0.002, 0.008, 0.040, 0.024, 0.067, 0.075, 0.019, 0.001, 0.060, 
         0.063, 0.091, 0.028, 0.010, 0.023, 0.001, 0.020, 0.001];
-    text = tools.normalizeInput(strText);
+    var text = tools.normalizeInput(strText);
     var frecuencies = {};
     for (var i = 0; i < text.length; i++) {
         if (frecuencies[text.charAt(i)])
@@ -230,7 +232,7 @@ function funM_g(strText, g) {
     for (var i = 0; i < standardProbabilities.length; i++) {
         sum += standardProbabilities[i];
     }
-    return sum / str.length;
+    return sum / strText.length;
 }
 
 // Función que retorna la posible clave del texto cifrado con Vigenere (cipherText) suponinedo que la clave es de longitud m
