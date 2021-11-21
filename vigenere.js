@@ -56,7 +56,7 @@ console.log(ranKey(10));
 
 // Función que retorna la frecuencia de todas las subpalabras de longitud lenChar de un texto (text)
 function charFrecuency(text, lenChar) {
-    text = tools.normalizeInput(text);
+    var text = tools.normalizeInput(text);
     var frecuencyMap = {};
     for (var i = 0; i < text.length - (lenChar - 1); i++) {
         if (frecuencyMap[text.substring(i, i + lenChar)])
@@ -77,6 +77,8 @@ function charFrecuency(text, lenChar) {
 
 // Función que retorna los índices de las councidencias de una palabra (searchStr) en un texto (str)
 function getIndicesOf(str, searchStr) {
+    str = tools.normalizeInput(str);
+    searchStr = tools.normalizeInput(searchStr);
     var searchStrLen = searchStr.length;
     if (searchStrLen == 0) {
         return [];
@@ -107,6 +109,8 @@ Math.gcd = function (numList) {
 // Función que retorna una posible longitud de la clave del cifrado Vigenere recibiendo el texto cifrado (cipherText)
 // y una de las subpalabras de longitud > 3 que más se repita.  
 function kasiskiTest(cipherText, searchStr) {
+    cipherText = tools.normalizeInput(str);
+    searchStr = tools.normalizeInput(searchStr);
     var indices = getIndicesOf(cipherText, searchStr);
     if (indices.length == 0) {
         return 0;
@@ -137,6 +141,7 @@ function kasiskiTest(cipherText, searchStr) {
 
 // Función que retorna el índice de coincidencias de un texto (strText)
 function coinciIndex(strText) {
+    strText = tools.normalizeInput(strText);
     var text = tools.normalizeInput(strText);
     var frecuencies = {};
     for (var i = 0; i < text.length; i++) {
@@ -159,6 +164,7 @@ function coinciIndex(strText) {
 // Función que divide un texto (strText) en m subpalabras y arma nuevas palabras tomando todos los caractesres que estén en
 // la misma posición de la subpalabra 
 function splitStr(strText, m) {
+    strText = tools.normalizeInput(strText);
     var strToSend = [];
     for (var i = 0; i < m; i++) {
         strToSend.push("");
@@ -172,6 +178,7 @@ function splitStr(strText, m) {
 // Función que retorna todos los m índices de coincidencia de un texto.
 // Es buen m si los índices de coincidencia son cercanos a 0.065. Es un mal m si son cercanos a 0.038, así se escoge el m
 function getAllCoincidenceIndex(strText, m) {
+    strText = tools.normalizeInput(strText);
     var out = [];
     if (m <= 0) {
         return out;
@@ -205,6 +212,7 @@ function getAllCoincidenceIndex(strText, m) {
 // (probabilidad estándar de una letra en inglés)*(probabilidad de la letra corrida g posisciones en el texto).
 // Lo que, entre más cercano a 0.065, significa que esa letra se corrió k posiciones en el texto.
 function funM_g(strText, g) {
+    strText = tools.normalizeInput(strText);
     // Probabilidades estandar de encontrarse la i-ésima letra de un texto en inglés.  
     var standardProbabilities = 
         [0.082, 0.015, 0.028, 0.043, 0.127, 0.022, 0.020, 0.061, 0.070,
@@ -237,6 +245,7 @@ function funM_g(strText, g) {
 
 // Función que retorna la posible clave del texto cifrado con Vigenere (cipherText) suponinedo que la clave es de longitud m
 function vigenereCryptanalysis(cipherText, m) {
+    cipherText = tools.normalizeInput(cipherText);
     var possibleKey = splitStr(cipherText, m);
     const expectedCI = 0.065;
     var minDiff = -1;
