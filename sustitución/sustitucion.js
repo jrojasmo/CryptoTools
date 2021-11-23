@@ -132,7 +132,7 @@ const key_system = verification_key(key_substitution);
 
 //console.log(cipher(arr_plaintext, alphabet, key_system));
 
-var text =
+/*var text =
     "SOWFBRKAWFCZFSBSCSBQITBKOWLBFXTBKOWLSOXSOXFZWWIBICFWUQLRXINOCIJLWJFQUNWXLFBSZXFBTXAANTQIFBFSFQUFCZFSBSCSBIMWHWLNKAXBISWGSTOXLXTSWLUQLXJBUUWLWISTBKOWLSWGSTOXLXTSWLBSJBUUWLFULQRTXWFXLTBKOWLBISOXSSOWTBKOWLXAKOXZWSBFIQSFBRKANSOWXAKOXZWSFOBUSWJBSBFTQRKAWSWANECRZAWJ";
-sustitutionCryptanalysis(text);
+sustitutionCryptanalysis(text);*/
 //console.log(decipher_with_key(ciphertext, alphabet, key_system));
