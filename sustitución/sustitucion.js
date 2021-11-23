@@ -114,7 +114,7 @@ function fitness(text, key) {
             coincidences =
                 coincidences + Math.log(quadGramMap.get(quad) / quadNumber);
         } else {
-            coincidences = coincidences - 1000;
+            coincidences = coincidences - 10000;
         }
     }
     return coincidences;
