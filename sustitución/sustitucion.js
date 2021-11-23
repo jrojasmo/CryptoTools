@@ -5,17 +5,59 @@ let key_substitution = ""; // INPUT KEY (No Necesaria)     ---------------------
 const alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
 const arr_plaintext = plaintext.split(""); /// Array texto plano
 const fs = require("fs");
-var array = fs.readFileSync("english_quadgrams.txt").toString().split("\n");
 const quadGramMap = new Map();
+const triGramMap = new Map();
+const biGramMap = new Map();
+const monoGramMap = new Map();
 var quadNumber = 0;
-for (i in array) {
-    var temp = array[i].split(" ");
-    temp[0] = temp[0].toLowerCase();
-    if (temp.length == 2 && temp[1].length > 0) {
-        quadNumber = quadNumber + parseInt(temp[1]);
-        quadGramMap.set(temp[0], parseInt(temp[1]));
+var triNumber = 0;
+var biNumber = 0;
+var monoNumber = 0;
+{
+    var array = fs.readFileSync("english_quadgrams.txt").toString().split("\n");
+    for (i in array) {
+        var temp = array[i].split(" ");
+        temp[0] = temp[0].toLowerCase();
+        if (temp.length == 2 && temp[1].length > 0) {
+            quadNumber = quadNumber + parseInt(temp[1]);
+            quadGramMap.set(temp[0], parseInt(temp[1]));
+        }
     }
 }
+{
+    var array = fs.readFileSync("english_trigrams.txt").toString().split("\n");
+    for (i in array) {
+        var temp = array[i].split(" ");
+        temp[0] = temp[0].toLowerCase();
+        if (temp.length == 2 && temp[1].length > 0) {
+            triNumber = triNumber + parseInt(temp[1]);
+            triGramMap.set(temp[0], parseInt(temp[1]));
+        }
+    }
+}
+{
+    var array = fs.readFileSync("english_digrams.txt").toString().split("\n");
+    for (i in array) {
+        var temp = array[i].split(" ");
+        temp[0] = temp[0].toLowerCase();
+        if (temp.length == 2 && temp[1].length > 0) {
+            biNumber = biNumber + parseInt(temp[1]);
+            biGramMap.set(temp[0], parseInt(temp[1]));
+        }
+    }
+}
+{
+    var array = fs.readFileSync("english_monograms.txt").toString().split("\n");
+    for (i in array) {
+        var temp = array[i].split(" ");
+        temp[0] = temp[0].toLowerCase();
+        if (temp.length == 2 && temp[1].length > 0) {
+            monoNumber = monoNumber + parseInt(temp[1]);
+            monoGramMap.set(temp[0], parseInt(temp[1]));
+        }
+    }
+}
+
 function verification_key(key_substitution) {
     if (key_substitution == "") {
         let alphabet_arr = "abcdefghijklmnopqrstuvwxyz".split("");
@@ -62,7 +104,7 @@ function decipher_with_key(ciphertext, alphabet, alphabet_key) {
     return deciphertext; // Retorna texto decifrado ---STRING---
 }
 
-function sustitutionCryptanalysis(ciphertext) {
+function sustitutionCryptanalysis(ciphertext, numberOfTexts = 10) {
     if (ciphertext.length <= 100) {
         console.log(
             "La longitud del texto cifrado no es lo suficientemente larga para realizar un buen criptoanálisis"
@@ -70,54 +112,46 @@ function sustitutionCryptanalysis(ciphertext) {
         return;
     }
     ciphertext = ciphertext.toLowerCase();
-    var key = verification_key("");
-    var max_key = key.slice();
-    var count = 0;
-    var max_score = -999999;
-    var max_iter = 100000;
-    while (max_iter > 0) {
-        var score = fitness(ciphertext, key);
-        while (count < 1000) {
-            a = Math.floor(Math.random() * 26);
-            b = Math.floor(Math.random() * 26);
-            child = key.slice();
-            //swap two characters in the child
-            var temp = child[a];
-            child[a] = child[b];
-            child[b] = temp;
-            var scoreT = fitness(ciphertext, child);
-            //console.log(scoreT);
-            if (scoreT > score) {
-                score = scoreT;
-                key = child;
-                count = 0;
+    var tries = 1;
+    while (tries <= numberOfTexts) {
+        var key = verification_key("");
+        var max_key = key.slice();
+        var count = 0;
+        var max_score = -999999;
+        var max_iter = 1000;
+        while (max_iter > 0) {
+            var score = fitness(ciphertext, key);
+            while (count < 1000) {
+                a = Math.floor(Math.random() * 26);
+                b = Math.floor(Math.random() * 26);
+                child = key.slice();
+                //swap two characters in the child
+                var temp = child[a];
+                child[a] = child[b];
+                child[b] = temp;
+                var scoreT = fitness(ciphertext, child);
+                //console.log(scoreT);
+                if (scoreT > score) {
+                    score = scoreT;
+                    key = child;
+                    count = 0;
+                }
+                count = count + 1;
             }
-            count = count + 1;
+            if (score > max_score) {
+                max_score = score;
+                max_key = key;
+            }
+            --max_iter;
         }
-        if (score > max_score) {
-            max_score = score;
-            max_key = key;
-        }
-        --max_iter;
+        console.log("Max score for the try", tries, ":", max_score);
+        console.log("Key with max score: ", max_key);
+        console.log(
+            "Undeciphered text: ",
+            decipher_with_key(ciphertext, alphabet, max_key)
+        );
+        ++tries;
     }
-    //console.log(max_score);
-    console.log(decipher_with_key(ciphertext, alphabet, max_key));
-}
-function fitness(text, key) {
-    var copy = (" " + text).slice(1);
-    var clearText = decipher_with_key(copy, alphabet, key);
-    var quadClear = quadGrams(clearText);
-    var coincidences = 0;
-    for (var i = 0; i < quadClear.length; ++i) {
-        var quad = quadClear[i];
-        if (quadGramMap.get(quad) != undefined) {
-            coincidences =
-                coincidences + Math.log(quadGramMap.get(quad) / quadNumber);
-        } else {
-            coincidences = coincidences - 10000;
-        }
-    }
-    return coincidences;
 }
 function quadGrams(text) {
     var array = [];
@@ -127,12 +161,76 @@ function quadGrams(text) {
     }
     return array;
 }
+function triGrams(text) {
+    var array = [];
+    for (var i = 0; i < text.length - 2; i++) {
+        var copy = (" " + text).slice(1);
+        array.push(copy.slice(i, i + 3));
+    }
+    return array;
+}
+function biGrams(text) {
+    var array = [];
+    for (var i = 0; i < text.length - 1; i++) {
+        var copy = (" " + text).slice(1);
+        array.push(copy.slice(i, i + 2));
+    }
+    return array;
+}
+function monoGrams(text) {
+    var array = [];
+    for (var i = 0; i < text.length; i++) {
+        var copy = (" " + text).slice(1);
+        array.push(copy.slice(i, i + 1));
+    }
+    return array;
+}
+function fitness(text, key) {
+    var copy = (" " + text).slice(1);
+    var clearText = decipher_with_key(copy, alphabet, key);
+    var quadClear = quadGrams(clearText);
+    var triClear = triGrams(clearText);
+    var biClear = biGrams(clearText);
+    var monoClear = monoGrams(clearText);
+    var score = 0;
+    for (var i = 0; i < monoClear.length; ++i) {
+        var gram = monoClear[i];
+        if (monoGramMap.get(gram) != undefined) {
+            score = score + Math.log(monoGramMap.get(gram) / monoNumber);
+        }
+    }
+    for (var i = 0; i < biClear.length; ++i) {
+        var gram = biClear[i];
+        if (biGramMap.get(gram) != undefined) {
+            score = score + Math.log(biGramMap.get(gram) / biNumber);
+        } else {
+            score = score - 1000;
+        }
+    }
+    for (var i = 0; i < triClear.length; ++i) {
+        var gram = triClear[i];
+        if (triGramMap.get(gram) != undefined) {
+            score = score + Math.log(triGramMap.get(gram) / triNumber);
+        } else {
+            score = score - 100;
+        }
+    }
+    for (var i = 0; i < quadClear.length; ++i) {
+        var gram = quadClear[i];
+        if (quadGramMap.get(gram) != undefined) {
+            score = score + Math.log(quadGramMap.get(gram) / quadNumber);
+        } else {
+            score = score - 10;
+        }
+    }
+    return score;
+}
 //console.log(alphabet);
 const key_system = verification_key(key_substitution);
 
 //console.log(cipher(arr_plaintext, alphabet, key_system));
 
-/*var text =
+var text =
     "SOWFBRKAWFCZFSBSCSBQITBKOWLBFXTBKOWLSOXSOXFZWWIBICFWUQLRXINOCIJLWJFQUNWXLFBSZXFBTXAANTQIFBFSFQUFCZFSBSCSBIMWHWLNKAXBISWGSTOXLXTSWLUQLXJBUUWLWISTBKOWLSWGSTOXLXTSWLBSJBUUWLFULQRTXWFXLTBKOWLBISOXSSOWTBKOWLXAKOXZWSBFIQSFBRKANSOWXAKOXZWSFOBUSWJBSBFTQRKAWSWANECRZAWJ";
-sustitutionCryptanalysis(text);*/
+sustitutionCryptanalysis(text, 10);
 //console.log(decipher_with_key(ciphertext, alphabet, key_system));
