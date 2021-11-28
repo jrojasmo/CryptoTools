@@ -104,8 +104,37 @@ function decipher_with_key(ciphertext, alphabet, alphabet_key) {
     return deciphertext; // Retorna texto decifrado ---STRING---
 }
 
+function getFrequencies(ciphertext) {
+    ciphertext = ciphertext.toLowerCase();
+    var map = new Map();
+    var frequencyArr = [];
+    for (var j = 1; j < 4; ++j) {
+        map = new Map();
+        var array = [];
+        for (var i = 0; i < ciphertext.length - j + 1; i++) {
+            var copy = (" " + ciphertext).slice(1);
+            var substring = copy.slice(i, i + j);
+            if (map.get(substring) != undefined) {
+                array[map.get(substring)][1]++;
+            } else {
+                array.push([substring, parseInt(1)]);
+                map.set(substring, array.length - 1);
+            }
+        }
+        array.sort(function (a, b) {
+            if (a[1] == b[1]) {
+                return a[0].localeCompare(b[0]);
+            } else {
+                return b[1] - a[1];
+            }
+        });
+        frequencyArr.push(array);
+    }
+    return frequencyArr;
+}
+
 function sustitutionCryptanalysis(ciphertext, numberOfTexts = 10) {
-    if (ciphertext.length <= 100) {
+    if (ciphertext.length <= 25) {
         console.log(
             "La longitud del texto cifrado no es lo suficientemente larga para realizar un buen criptoanálisis"
         );
@@ -232,5 +261,7 @@ const key_system = verification_key(key_substitution);
 
 var text =
     "SOWFBRKAWFCZFSBSCSBQITBKOWLBFXTBKOWLSOXSOXFZWWIBICFWUQLRXINOCIJLWJFQUNWXLFBSZXFBTXAANTQIFBFSFQUFCZFSBSCSBIMWHWLNKAXBISWGSTOXLXTSWLUQLXJBUUWLWISTBKOWLSWGSTOXLXTSWLBSJBUUWLFULQRTXWFXLTBKOWLBISOXSSOWTBKOWLXAKOXZWSBFIQSFBRKANSOWXAKOXZWSFOBUSWJBSBFTQRKAWSWANECRZAWJ";
-sustitutionCryptanalysis(text, 10);
+
+//sustitutionCryptanalysis(text, 10);
+console.log(getFrequencies(text));
 //console.log(decipher_with_key(ciphertext, alphabet, key_system));
