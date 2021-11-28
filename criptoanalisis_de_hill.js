@@ -9,8 +9,10 @@
 //    console.log(array_inv)
 //}
 
-function matrix_numbers(text,idiom){
-
+function matrix_numbers(text,idiom){ 
+    //Función que recibe str text ya sea el texto plano o el texto cifrado
+    //Recibe str idiom para decidir si es español o inglés para decidir Z_26 o Z_27
+    //La salida es la matriz de 3 columnas y (text.length)/3 filas para hacer luego Metodo de Gauss - Jordan 
     if(idiom == 'alphabet_spa'){
         alphabet = "abcdefghijklmnñopqrstuvwxyz".split("");
     }else{
@@ -25,8 +27,9 @@ function matrix_numbers(text,idiom){
     }
     return matrix_3;
 }
-
 function verification_negative(matrix){
+    //Recibe matriz y verifica que las entradas no sean negativas, 
+    //llenando los epacios vacios de la matriz con 0´s  
     for(i in matrix){
         for(j in matrix[i]){
             if(matrix[i][j]==-1){
@@ -39,6 +42,7 @@ function verification_negative(matrix){
 
 }
 function mod_inv_mult(element_m,l){
+    // Calicula en inverso multilicativo modular de element_m
     for (let i=0; i<=l; i++){
         //console.log(i,element_m);
         //console.log((element_m*i)%l)
@@ -48,6 +52,7 @@ function mod_inv_mult(element_m,l){
     }
 }
 function sum_modular(x,y,l){
+    // Realiza y retorna la suma modular de x,y en Z_deg(l)
     if(x+y<0){
         z = x+y+l;
         while(z<0){
@@ -60,6 +65,8 @@ function sum_modular(x,y,l){
     }
 }
 function one_first_row_column(Gauss_Matrix,l){
+    //Dada la matriz compuesta del texto plano y cifrado
+    //con el inverso multiplicativo pone 1 en la 
     inv = mod_inv_mult(Gauss_Matrix[0][0][0],l);
     Gauss_Matrix[0][0] = [(inv*Gauss_Matrix[0][0][0])%l,(inv*Gauss_Matrix[0][0][1])%l,(inv*Gauss_Matrix[0][0][2])%l];
     console.log(Gauss_Matrix[0][0]);
@@ -69,6 +76,8 @@ function one_first_row_column(Gauss_Matrix,l){
     return Gauss_Matrix;
 }
 function zero_first_column(Gauss_Matrix,l){
+    //Recibe la matriz compuesta del texto plano y cifrado
+    //Retorna la matriz con la primera coluna con ceros exepto la primera fila con un 1
     for( let i=1; i<Gauss_Matrix[0].length; i++){
         adit_inv = Gauss_Matrix[0][i][0];
         Gauss_Matrix[0][i] = [sum_modular(Gauss_Matrix[0][i][0], -(adit_inv*Gauss_Matrix[0][0][0]),l), sum_modular(Gauss_Matrix[0][i][1], -(adit_inv*Gauss_Matrix[0][0][1]),l), sum_modular(Gauss_Matrix[0][i][2], -(adit_inv*Gauss_Matrix[0][0][2]),l)];  
@@ -77,23 +86,25 @@ function zero_first_column(Gauss_Matrix,l){
     console.log("ceros columna 1",Gauss_Matrix);
     return Gauss_Matrix;
 }
-function verification_zero_2nd_column(Gauss_Matrix){
-    for( let i=1; i<Gauss_Matrix[0].length; i++){
-        if (Gauss_Matrix[0][i][1]==0){
-            pos_acept = Gauss_Matrix[0][i];
-            pos_second_row = Gauss_Matrix[0][1];
-            pos_acept1 = Gauss_Matrix[1][i];
-            pos_second_row1 = Gauss_Matrix[1][1];
-            Gauss_Matrix[0][1] = pos_acept;
-            Gauss_Matrix[0][i] = pos_second_row;
-            Gauss_Matrix[1][1] = pos_acept1;
-            Gauss_Matrix[1][i] = pos_second_row1;
-        }
-    }
-    console.log("verif",Gauss_Matrix)
-    return Gauss_Matrix
-}
+//function verification_zero_2nd_column(Gauss_Matrix){
+//    //Recibe matríz y verifica si en la segunda columna hay a
+//    for( let i=1; i<Gauss_Matrix[0].length; i++){
+//        if (Gauss_Matrix[0][i][1]==0){
+//            pos_acept = Gauss_Matrix[0][i];
+//            pos_second_row = Gauss_Matrix[0][1];
+//            pos_acept1 = Gauss_Matrix[1][i];
+//            pos_second_row1 = Gauss_Matrix[1][1];
+//            Gauss_Matrix[0][1] = pos_acept;
+//            Gauss_Matrix[0][i] = pos_second_row;
+//            Gauss_Matrix[1][1] = pos_acept1;
+//            Gauss_Matrix[1][i] = pos_second_row1;
+//        }
+//    }
+//    console.log("verif",Gauss_Matrix)
+//    return Gauss_Matrix
+//}
 function one_second_row_column(Gauss_Matrix,l){
+    // Recibe matriz y retorna la misma con 1 en la entrada fila 2, columna 2
     inv = mod_inv_mult(Gauss_Matrix[0][1][1],l);
     console.log(inv)
     Gauss_Matrix[0][1] = [0,(inv*Gauss_Matrix[0][1][1])%l,(inv*Gauss_Matrix[0][1][2])%l];
@@ -102,6 +113,8 @@ function one_second_row_column(Gauss_Matrix,l){
     return Gauss_Matrix;
 }
 function zero_second_column(Gauss_Matrix,l){
+    //Recibe la matriz compuesta del texto plano y cifrado
+    //Retorna la matriz con la segunda coluna con ceros exepto la segunda fila con un 1
     adit_inv = Gauss_Matrix[0][0][1];
         Gauss_Matrix[0][0] = [1,sum_modular(Gauss_Matrix[0][0][1], -(adit_inv*Gauss_Matrix[0][1][1]),l), sum_modular(Gauss_Matrix[0][0][2], -(adit_inv*Gauss_Matrix[0][1][2]),l)];  
         Gauss_Matrix[1][0] = [sum_modular(Gauss_Matrix[1][0][0], -(adit_inv*Gauss_Matrix[1][1][0]),l),sum_modular(Gauss_Matrix[1][0][1], -(adit_inv*Gauss_Matrix[1][1][1]),l), sum_modular(Gauss_Matrix[1][0][2], -(adit_inv*Gauss_Matrix[1][1][2]),l)];
@@ -114,6 +127,8 @@ function zero_second_column(Gauss_Matrix,l){
     return Gauss_Matrix;
 }
 function one_third_row_column(Gauss_Matrix,l){
+    //Recibe la matriz compuesta del texto plano y cifrado
+    //con el inverso multiplicativo inserta 1 en la entrada fila 3, columna 3 
     console.log(Gauss_Matrix,l);
     inv = mod_inv_mult(Gauss_Matrix[0][2][2],l);
     Gauss_Matrix[0][2] = [0,0,(inv*Gauss_Matrix[0][2][2])%l];
@@ -122,6 +137,8 @@ function one_third_row_column(Gauss_Matrix,l){
     return Gauss_Matrix;
 }
 function zero_third_column(Gauss_Matrix,l){
+    //Recibe la matriz compuesta del texto plano y cifrado
+    //Retorna la matriz con la segunda coluna con ceros exepto la segunda fila con un 3
     adit_inv = Gauss_Matrix[0][0][2];
     Gauss_Matrix[0][0] = [1,0, sum_modular(Gauss_Matrix[0][0][2], -(adit_inv*Gauss_Matrix[0][2][2]),l)];  
     Gauss_Matrix[1][0] = [sum_modular(Gauss_Matrix[1][0][0], -(adit_inv*Gauss_Matrix[1][2][0]),l),sum_modular(Gauss_Matrix[1][0][1], -(adit_inv*Gauss_Matrix[1][2][1]),l), sum_modular(Gauss_Matrix[1][0][2], -(adit_inv*Gauss_Matrix[1][2][2]),l)];
@@ -139,6 +156,7 @@ function zero_third_column(Gauss_Matrix,l){
     return key_nt;
 }
 function trans_matrix(matrix_n){
+    // Recibe una matriz 3x3 y retorna su matriz transpuesta
     let v01_matrix = matrix_n[0][1];
     let v02_matrix = matrix_n[0][2];
     let v10_matrix = matrix_n[1][0];
@@ -154,6 +172,9 @@ function trans_matrix(matrix_n){
     return matrix_n
 }
 function swap_row(Gauss_Matrix,n,m,mult_inverse){
+    // Recibe una matriz, posiciones en la columna y fila
+    // Verifica si esa posición tiene inverso multiplicativo, si no es así
+    // intercambia una fila que si tenga inverso en esa posición
     if(mult_inverse.includes(Gauss_Matrix[0][n][m])){
         console.log('swap',Gauss_Matrix)
         return Gauss_Matrix;
@@ -182,9 +203,9 @@ function swap_row(Gauss_Matrix,n,m,mult_inverse){
     }
 }
 
-
 function cryptanalysis_hill(p_text, c_text, idiom){
-
+    // Funcion principal que con las demás funciones hace el cripoanálisis de Hill
+    // Ingresa un texto plano y uno cifrado
     if(idiom == 'spanish'){
         alphabet = 'alphabet_spa';
         length_idiom = 27;
