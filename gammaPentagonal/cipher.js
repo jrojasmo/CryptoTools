@@ -1,3 +1,6 @@
+const { normalizeInput } = require("../generalTools");
+var tools = require("../generalTools");
+
 function ranPermutation() {
   var size = Math.floor(Math.random() * 26);
   var arr = new Array(size);
@@ -13,13 +16,45 @@ function ranPermutation() {
   return arr;
 }
 
-var normalizeInput = function (inputText) {
-  return rmAccents(inputText)
-    .replaceAll(/[^a-zA-Z]/g, "")
-    .replaceAll(" ", "")
-    .toLowerCase();
+function isAValidPermutation(permutation) {
+  var dupMap = {};
+  for (var i = 0; i < permutation.length; i++) {
+    if (permutation[i] < 0 || permutation[i] > permutation.length - 1)
+      return false;
+    // Verificar duplicados.
+    if (dupMap[permutation[i]]) return false;
+    dupMap[permutation[i]] = true;
+  }
+  return true;
+}
+const dict = {
+  a: 0,
+  b: 1,
+  c: 2,
+  d: 3,
+  e: 4,
+  f: 5,
+  g: 6,
+  h: 7,
+  i: 8,
+  j: 9,
+  k: 10,
+  l: 11,
+  m: 12,
+  n: 13,
+  o: 14,
+  p: 15,
+  q: 16,
+  r: 17,
+  s: 18,
+  t: 19,
+  u: 20,
+  v: 21,
+  w: 22,
+  x: 23,
+  y: 24,
+  z: 25,
 };
-
 class Node {
   constructor(posX, posY, generation) {
     this.posX = posX;
@@ -29,14 +64,6 @@ class Node {
     this.nodeOut = [];
     this.generation = generation;
   }
-  /*// Getter
-  get area() {
-    return this.calcArea();
-  }
-  // Method
-  calcArea() {
-    return this.height * this.width;
-  }*/
 }
 
 const alphSize = 26;
@@ -92,7 +119,7 @@ function gammaGraph(x0, y0, length, graphType) {
   }
   //                    Generacion 2
   var size = nodes.length;
-  console.log(size);
+  //console.log(size);
   generation = 2;
   for (var i = 1; i < size; ++i) {
     var j = 0;
@@ -183,12 +210,42 @@ function gammaGraph(x0, y0, length, graphType) {
   return nodes;
 }
 
-console.log(gammaGraph(1, 1, 5, 2));
+//console.log(gammaGraph(1, 1, 5, 2));
+
+function calculatePosition(shiftNumber, letter) {
+  var res = dict[letter] - shiftNumber;
+  res = (res + alphSize) % alphSize;
+  return res;
+}
+
+function shiftLetter(shiftNumber, letter) {}
 
 function cipher(x0, y0, permutation, clearText, graphType) {
+  if (!isAValidPermutation(permutation)) {
+    console.log("WHOOPS");
+    return;
+  }
   text = normalizeInput(clearText);
-  nodes = gammaGraph(x0, y0, permutation.length, graphType);
+  size = permutation.length;
+  nodes = gammaGraph(x0, y0, size, graphType);
+  var cipheredText = "";
+  var position = 0;
+  for (var i = 0; i < text.length; ++i) {
+    var y = calculatePosition(permutation[position], clearText[i]);
+    var shift = 0;
+    if (map.get(posToId(x0, y0, position, y, size)) >= 0) {
+      shift = nodes[map.get(posToId(x0, y0, position, y, size))].numIn;
+    }
+    cipheredText += "(";
+    cipheredText +=
+      ((shift + permutation[position] + dict[clearText[i]]) % alphSize) +
+      "," +
+      y;
+    cipheredText += ")";
+    if (i < text.length - 1) cipheredText += ",";
+    ++position;
+    position %= size;
+  }
+  return cipheredText;
 }
-//nodes.push(new Node(5, 5));
-/*map.set(12, 1);
-console.log(map.get(12));*/
+console.log(cipher(-8, -6, [3, 0, 2, 7, 9, 6, 1, 5, 4, 8], "thealmond"));
