@@ -1,8 +1,27 @@
-const { normalizeInput } = require("../generalTools");
-var tools = require("../generalTools");
+var rmAccents = function (inputText) {
+  var accents = "ÁÄáäÓÖóöÉËéÇçÍÏíïÚÜúüÑñ";
+  var noAccents = "AAaaOOooEEeeCcIIiiUUuuNn";
+  return inputText
+    .split("")
+    .map(function (chr) {
+      const accentIndex = accents.indexOf(chr);
+      return accentIndex !== -1 ? noAccents[accentIndex] : chr;
+    })
+    .join("");
+};
+
+var normalizeInput = function (inputText) {
+  return rmAccents(inputText)
+    .replaceAll(/[^a-zA-Z]/g, "")
+    .replaceAll(" ", "")
+    .toLowerCase();
+};
 
 function ranPermutation() {
   var size = Math.floor(Math.random() * 26);
+  while (size == 0) {
+    size = Math.floor(Math.random() * 26);
+  }
   var arr = new Array(size);
   for (var i = 0; i < arr.length; i++) arr[i] = i;
   var j;
@@ -19,7 +38,11 @@ function ranPermutation() {
 function isAValidPermutation(permutation) {
   var dupMap = {};
   for (var i = 0; i < permutation.length; i++) {
-    if (permutation[i] < 0 || permutation[i] > permutation.length - 1)
+    if (
+      permutation.length == 0 ||
+      permutation[i] < 0 ||
+      permutation[i] > permutation.length - 1
+    )
       return false;
     // Verificar duplicados.
     if (dupMap[permutation[i]]) return false;
@@ -27,6 +50,34 @@ function isAValidPermutation(permutation) {
   }
   return true;
 }
+const dict1 = {
+  0: "a",
+  1: "b",
+  2: "c",
+  3: "d",
+  4: "e",
+  5: "f",
+  6: "g",
+  7: "h",
+  8: "i",
+  9: "j",
+  10: "k",
+  11: "l",
+  12: "m",
+  13: "n",
+  14: "o",
+  15: "p",
+  16: "q",
+  17: "r",
+  18: "s",
+  19: "t",
+  20: "u",
+  21: "v",
+  22: "w",
+  23: "x",
+  24: "y",
+  25: "z",
+};
 const dict = {
   a: 0,
   b: 1,
@@ -77,7 +128,6 @@ function posToId(x0, y0, x, y, length) {
   }
   return (y - y0) * len + (x - x0);
 }
-//console.log(posToId(2, 2, 0, 0, 4));
 
 function gammaGraph(x0, y0, length, graphType) {
   nodes = [];
@@ -96,6 +146,7 @@ function gammaGraph(x0, y0, length, graphType) {
       slopes.push((i * (i + 1)) / 2);
     }
   }
+  //
   //console.log(slopes);
   //                    Generacion 1
   nodes.push(new Node(x0, y0, 1));
@@ -210,15 +261,11 @@ function gammaGraph(x0, y0, length, graphType) {
   return nodes;
 }
 
-//console.log(gammaGraph(1, 1, 5, 2));
-
 function calculatePosition(shiftNumber, letter) {
   var res = dict[letter] - shiftNumber;
   res = (res + alphSize) % alphSize;
   return res;
 }
-
-function shiftLetter(shiftNumber, letter) {}
 
 function cipher(x0, y0, permutation, clearText, graphType) {
   if (!isAValidPermutation(permutation)) {
@@ -228,6 +275,7 @@ function cipher(x0, y0, permutation, clearText, graphType) {
   text = normalizeInput(clearText);
   size = permutation.length;
   nodes = gammaGraph(x0, y0, size, graphType);
+  //console.log(nodes);
   var cipheredText = "";
   var position = 0;
   for (var i = 0; i < text.length; ++i) {
@@ -237,10 +285,7 @@ function cipher(x0, y0, permutation, clearText, graphType) {
       shift = nodes[map.get(posToId(x0, y0, position, y, size))].numIn;
     }
     cipheredText += "(";
-    cipheredText +=
-      ((shift + permutation[position] + dict[clearText[i]]) % alphSize) +
-      "," +
-      y;
+    cipheredText += ((shift + dict[clearText[i]]) % alphSize) + "," + y;
     cipheredText += ")";
     if (i < text.length - 1) cipheredText += ",";
     ++position;
@@ -248,4 +293,7 @@ function cipher(x0, y0, permutation, clearText, graphType) {
   }
   return cipheredText;
 }
-console.log(cipher(-8, -6, [3, 0, 2, 7, 9, 6, 1, 5, 4, 8], "thealmond"));
+//tests
+//console.log(posToId(2, 2, 0, 0, 4));
+//console.log(gammaGraph(1, 1, 5, 2));
+console.log(cipher(-8, -6, [3, 0, 2, 7, 9, 6, 1, 5, 4, 8], "the almond", 1));
