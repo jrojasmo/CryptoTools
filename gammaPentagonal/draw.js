@@ -208,9 +208,6 @@ function posToId(x0, y0, x, y, length) {
   return (y - y0) * len + (x - x0);
 }
 // DELETE DELETE// DELETE DELETE// DELETE DELETE// DELETE DELETE// DELETE DELETE// DELETE DELETE// DELETE DELETE// DELETE DELETE
-
-function drawGammaGraph() {}
-
 function setLetras(permutation, div = 12) {
   var letras = [];
   var size = permutation.length;
@@ -312,5 +309,4 @@ function drawPermutation(permutation) {
     }
   }
 }
-//tests
-drawPermutation([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], 0, 0);
+function drawGammaGraph() {}
