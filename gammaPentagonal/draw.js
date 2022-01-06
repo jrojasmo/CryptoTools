@@ -80,119 +80,226 @@ function gammaGraph(x0, y0, length, graphType) {
     for (var i = 0; i <= maxY; ++i) {
       slopes.push(i);
     }
+    nodes.push(new Node(x0, y0, 1));
+    map.set(posToId(x0, y0, x0, y0, length), nodes.length - 1);
+    //console.log(map.get(0));
+    var i = 0;
+    var generation = 1;
+    while (true) {
+      var x = nodes[i].posX + 1;
+      var y = nodes[i].posY + slopes[i];
+      if (x < length && y < alphSize) {
+        nodes.push(new Node(x, y, generation));
+        nodes[i + 1].numIn++;
+        nodes[i + 1].maxSlope = slopes[i];
+        nodes[i].nodeOut.push(posToId(x0, y0, x, y, length));
+        map.set(posToId(x0, y0, x, y, length), nodes.length - 1);
+        ++i;
+      } else {
+        break;
+      }
+    }
+    //                    Generacion 2
+    var size = nodes.length;
+    //console.log(size);
+    generation = 2;
+    for (var i = 1; i < size; ++i) {
+      var j = 0;
+      var index = i;
+      while (true) {
+        var x = nodes[index].posX + 1;
+        var y = nodes[index].posY + slopes[j];
+        var id = posToId(x0, y0, x, y, length);
+        if (map.get(id) >= 0) {
+          pos = map.get(id);
+        } else {
+          pos = -1;
+        }
+        if (x < length && y < alphSize) {
+          if (pos == -1) {
+            nodes.push(new Node(x, y, generation));
+            pos = nodes.length - 1;
+            map.set(posToId(x0, y0, x, y, length), pos);
+          }
+          var exists = false;
+          for (var k = 0; k < nodes[index].nodeOut.length; ++k) {
+            if (nodes[index].nodeOut[k] == posToId(x0, y0, x, y, length)) {
+              exists = true;
+              break;
+            }
+          }
+          if (!exists) {
+            nodes[pos].numIn++;
+            nodes[pos].maxSlope = Math.max(slopes[j], nodes[pos].maxSlope);
+            nodes[index].nodeOut.push(posToId(x0, y0, x, y, length));
+          }
+          ++j;
+          index = pos;
+        } else {
+          break;
+        }
+      }
+    }
+    //                    Generacion 3
+    generation = 3;
+    var maxId =
+      (length + Math.abs(Math.min(x0, 0))) *
+      (alphSize + Math.abs(Math.min(y0, 0)));
+    for (var i = 0; i <= maxId; ++i) {
+      if (map.get(i) >= 0) {
+        var node = nodes[map.get(i)];
+        if (node.generation == 2) {
+          var j = 0;
+          var index = map.get(i);
+          var maxSlope = node.maxSlope;
+          while (slopes[j] <= maxSlope) {
+            var x = nodes[index].posX + 1;
+            var y = nodes[index].posY + slopes[j];
+            var id = posToId(x0, y0, x, y, length);
+            if (map.get(id) >= 0) {
+              pos = map.get(id);
+            } else {
+              pos = -1;
+            }
+            if (x < length && y < alphSize) {
+              if (pos == -1) {
+                nodes.push(new Node(x, y, generation));
+                pos = nodes.length - 1;
+                map.set(posToId(x0, y0, x, y, length), pos);
+                nodes[pos].numIn++;
+              }
+              var exists = false;
+              for (var k = 0; k < nodes[index].nodeOut.length; ++k) {
+                if (nodes[index].nodeOut[k] == posToId(x0, y0, x, y, length)) {
+                  exists = true;
+                  break;
+                }
+              }
+              if (!exists) {
+                nodes[pos].numIn++;
+                nodes[pos].maxSlope = Math.max(slopes[j], nodes[pos].maxSlope);
+                nodes[index].nodeOut.push(posToId(x0, y0, x, y, length));
+              }
+              ++j;
+              index = pos;
+            } else {
+              break;
+            }
+          }
+        }
+      }
+    }
   } else {
     //triangular numbers
     for (var i = 0; (i * (i + 1)) / 2 <= maxY; ++i) {
       slopes.push((i * (i + 1)) / 2);
     }
-  }
-  //
-  //console.log(slopes);
-  //                    Generacion 1
-  nodes.push(new Node(x0, y0, 1));
-  map.set(posToId(x0, y0, x0, y0, length), nodes.length - 1);
-  //console.log(map.get(0));
-  var i = 0;
-  var generation = 1;
-  while (true) {
-    var x = nodes[i].posX + 1;
-    var y = nodes[i].posY + slopes[i];
-    if (x < length && y < alphSize) {
-      nodes.push(new Node(x, y, generation));
-      nodes[i + 1].numIn++;
-      nodes[i + 1].maxSlope = slopes[i];
-      nodes[i].nodeOut.push(posToId(x0, y0, x, y, length));
-      map.set(posToId(x0, y0, x, y, length), nodes.length - 1);
-      ++i;
-    } else {
-      break;
-    }
-  }
-  //                    Generacion 2
-  var size = nodes.length;
-  //console.log(size);
-  generation = 2;
-  for (var i = 1; i < size; ++i) {
-    var j = 0;
-    var index = i;
+    nodes.push(new Node(x0, y0, 1));
+    map.set(posToId(x0, y0, x0, y0, length), nodes.length - 1);
+    //console.log(map.get(0));
+    var i = 0;
+    //                    Generacion 1
+    var generation = 1;
     while (true) {
-      var x = nodes[index].posX + 1;
-      var y = nodes[index].posY + slopes[j];
-      var id = posToId(x0, y0, x, y, length);
-      if (map.get(id) >= 0) {
-        pos = map.get(id);
-      } else {
-        pos = -1;
-      }
+      var x = nodes[i].posX + 1;
+      var y = nodes[i].posY + slopes[i];
       if (x < length && y < alphSize) {
-        if (pos == -1) {
-          nodes.push(new Node(x, y, generation));
-          pos = nodes.length - 1;
-          map.set(posToId(x0, y0, x, y, length), pos);
-        }
-        var exists = false;
-        for (var k = 0; k < nodes[index].nodeOut.length; ++k) {
-          if (nodes[index].nodeOut[k] == posToId(x0, y0, x, y, length)) {
-            exists = true;
-            break;
-          }
-        }
-        if (!exists) {
-          nodes[pos].numIn++;
-          nodes[pos].maxSlope = Math.max(slopes[j], nodes[pos].maxSlope);
-          nodes[index].nodeOut.push(posToId(x0, y0, x, y, length));
-        }
-        ++j;
-        index = pos;
+        nodes.push(new Node(x, y, generation));
+        nodes[i + 1].numIn++;
+        nodes[i + 1].maxSlope = slopes[i];
+        nodes[i].nodeOut.push(posToId(x0, y0, x, y, length));
+        map.set(posToId(x0, y0, x, y, length), nodes.length - 1);
+        ++i;
       } else {
         break;
       }
     }
-  }
-  //                    Generacion 3
-  generation = 3;
-  var maxId =
-    (length + Math.abs(Math.min(x0, 0))) *
-    (alphSize + Math.abs(Math.min(y0, 0)));
-  for (var i = 0; i <= maxId; ++i) {
-    if (map.get(i) >= 0) {
-      var node = nodes[map.get(i)];
-      if (node.generation == 2) {
-        var j = 0;
-        var index = map.get(i);
-        var maxSlope = node.maxSlope;
-        while (slopes[j] <= maxSlope) {
-          var x = nodes[index].posX + 1;
-          var y = nodes[index].posY + slopes[j];
-          var id = posToId(x0, y0, x, y, length);
-          if (map.get(id) >= 0) {
-            pos = map.get(id);
-          } else {
-            pos = -1;
+    //                    Generacion 2
+    var size = nodes.length;
+    //console.log(size);
+    generation = 2;
+    for (var i = 1; i < size; ++i) {
+      var j = 0;
+      var index = i;
+      while (true) {
+        var x = nodes[index].posX + 1;
+        var y = nodes[index].posY + slopes[j];
+        var id = posToId(x0, y0, x, y, length);
+        if (map.get(id) >= 0) {
+          pos = map.get(id);
+        } else {
+          pos = -1;
+        }
+        if (x < length && y < alphSize) {
+          if (pos == -1) {
+            nodes.push(new Node(x, y, generation));
+            pos = nodes.length - 1;
+            map.set(posToId(x0, y0, x, y, length), pos);
           }
-          if (x < length && y < alphSize) {
-            if (pos == -1) {
-              nodes.push(new Node(x, y, generation));
-              pos = nodes.length - 1;
-              map.set(posToId(x0, y0, x, y, length), pos);
-              nodes[pos].numIn++;
+          var exists = false;
+          for (var k = 0; k < nodes[index].nodeOut.length; ++k) {
+            if (nodes[index].nodeOut[k] == posToId(x0, y0, x, y, length)) {
+              exists = true;
+              break;
             }
-            var exists = false;
-            for (var k = 0; k < nodes[index].nodeOut.length; ++k) {
-              if (nodes[index].nodeOut[k] == posToId(x0, y0, x, y, length)) {
-                exists = true;
-                break;
+          }
+          if (!exists) {
+            nodes[pos].numIn++;
+            nodes[pos].maxSlope = Math.max(slopes[j], nodes[pos].maxSlope);
+            nodes[index].nodeOut.push(posToId(x0, y0, x, y, length));
+          }
+          ++j;
+          index = pos;
+        } else {
+          break;
+        }
+      }
+    }
+    //                    Generacion 3
+    generation = 3;
+    var maxId =
+      (length + Math.abs(Math.min(x0, 0))) *
+      (alphSize + Math.abs(Math.min(y0, 0)));
+    for (var i = 0; i <= maxId; ++i) {
+      if (map.get(i) >= 0) {
+        var node = nodes[map.get(i)];
+        if (node.generation == 2) {
+          var j = 1;
+          var index = map.get(i);
+          var maxSlope = node.maxSlope;
+          while (slopes[j] <= maxSlope) {
+            var x = nodes[index].posX + 1;
+            var y = nodes[index].posY + slopes[j];
+            var id = posToId(x0, y0, x, y, length);
+            if (map.get(id) >= 0) {
+              pos = map.get(id);
+            } else {
+              pos = -1;
+            }
+            if (x < length && y < alphSize) {
+              if (pos == -1) {
+                nodes.push(new Node(x, y, generation));
+                pos = nodes.length - 1;
+                map.set(posToId(x0, y0, x, y, length), pos);
+                nodes[pos].numIn++;
               }
+              var exists = false;
+              for (var k = 0; k < nodes[index].nodeOut.length; ++k) {
+                if (nodes[index].nodeOut[k] == posToId(x0, y0, x, y, length)) {
+                  exists = true;
+                  break;
+                }
+              }
+              if (!exists) {
+                nodes[pos].numIn++;
+                nodes[pos].maxSlope = Math.max(slopes[j], nodes[pos].maxSlope);
+                nodes[index].nodeOut.push(posToId(x0, y0, x, y, length));
+              }
+              ++j;
+              index = pos;
+            } else {
+              break;
             }
-            if (!exists) {
-              nodes[pos].numIn++;
-              nodes[pos].maxSlope = Math.max(slopes[j], nodes[pos].maxSlope);
-              nodes[index].nodeOut.push(posToId(x0, y0, x, y, length));
-            }
-            ++j;
-            index = pos;
-          } else {
-            break;
           }
         }
       }
@@ -309,4 +416,112 @@ function drawPermutation(permutation) {
     }
   }
 }
-function drawGammaGraph() {}
+function drawG(nodes, x0, y0, movX, movY, size) {
+  var div = 20;
+  //lineas del plano
+  var colorLineas = "92e326";
+  var posx = width / div;
+  var posy = ((div - 1) * height) / div;
+  var movx = width / div;
+  var movy = height / div;
+  context.beginPath();
+  context.moveTo(posx - movx * x0 - movX, 0);
+  context.lineTo(posx - movx * x0 - movX, height);
+  context.lineWidth = 1;
+  context.strokeStyle = "#" + colorLineas;
+  context.stroke();
+  //y
+  context.beginPath();
+  context.moveTo(0, posy + movy * y0 - movY);
+  context.lineTo(width, posy + movy * y0 - movY);
+  context.lineWidth = 1;
+  context.strokeStyle = "#" + colorLineas;
+  context.stroke();
+  //lineas del plano
+  //punto inicial
+  context.beginPath();
+  context.lineWidth = 1;
+  context.strokeStyle = "#ff3232";
+  context.fillStyle = "#ff3232";
+  context.arc(posx - movX, posy - movY, 3, 0, 2 * Math.PI, true);
+  context.fill();
+  context.stroke();
+  //grid con nodos de coordenada
+  for (var i = 0; i < size; ++i) {
+    for (var j = 0; j < alphSize; ++j) {
+      context.beginPath();
+      context.lineWidth = 1;
+      context.strokeStyle = "#e124cd";
+      context.fillStyle = "#e124cd";
+      context.arc(
+        posx - movx * (x0 - i) - movX,
+        posy + movy * (y0 - j) - movY,
+        1,
+        0,
+        2 * Math.PI,
+        true
+      );
+      context.fill();
+      context.stroke();
+    }
+  }
+  //dibujo y conexiones de nodos
+  for (var i = 0; i < nodes.length; ++i) {
+    var node = nodes[i];
+    if (i != 0) {
+      context.beginPath();
+      context.lineWidth = 0.25;
+      context.strokeStyle = "#30eaf3";
+      context.fillStyle = "#30eaf3";
+      context.arc(
+        posx - movx * (x0 - node.posX) - movX,
+        posy + movy * (y0 - node.posY) - movY,
+        2,
+        0,
+        2 * Math.PI,
+        true
+      );
+      context.fill();
+      context.stroke();
+    }
+    var colorUnion = "30eaf3";
+    for (var j = 0; j < node.nodeOut.length; ++j) {
+      var pos2X = nodes[map.get(node.nodeOut[j])].posX;
+      var pos2Y = nodes[map.get(node.nodeOut[j])].posY;
+      context.beginPath();
+      context.moveTo(
+        posx - movx * (x0 - node.posX) - movX,
+        posy + movy * (y0 - node.posY) - movY
+      );
+      context.lineTo(
+        posx - movx * (x0 - pos2X) - movX,
+        posy + movy * (y0 - pos2Y) - movY
+      );
+      context.lineWidth = 1;
+      context.strokeStyle = "#" + colorUnion;
+      context.stroke();
+    }
+  }
+}
+function drawGammaGraph(nodes, x0, y0, size) {
+  drawG(nodes, x0, y0, 0, 0, size);
+  window.addEventListener("keydown", checkKeyPressed, false);
+  var i = 0;
+  var j = 0;
+  function checkKeyPressed(e) {
+    if (e.keyCode == "37") {
+      i -= 10;
+    }
+    if (e.keyCode == "38") {
+      j -= 10;
+    }
+    if (e.keyCode == "39") {
+      i += 10;
+    }
+    if (e.keyCode == "40") {
+      j += 10;
+    }
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    drawG(nodes, x0, y0, i, j, size);
+  }
+}

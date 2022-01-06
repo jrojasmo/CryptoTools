@@ -394,3 +394,112 @@ function drawPermutation(permutation) {
     }
   }
 }
+function drawG(nodes, x0, y0, movX, movY, size) {
+  var div = 20;
+  //lineas del plano
+  var colorLineas = "92e326";
+  var posx = width / div;
+  var posy = ((div - 1) * height) / div;
+  var movx = width / div;
+  var movy = height / div;
+  context.beginPath();
+  context.moveTo(posx - movx * x0 - movX, 0);
+  context.lineTo(posx - movx * x0 - movX, height);
+  context.lineWidth = 1;
+  context.strokeStyle = "#" + colorLineas;
+  context.stroke();
+  //y
+  context.beginPath();
+  context.moveTo(0, posy + movy * y0 - movY);
+  context.lineTo(width, posy + movy * y0 - movY);
+  context.lineWidth = 1;
+  context.strokeStyle = "#" + colorLineas;
+  context.stroke();
+  //lineas del plano
+  //punto inicial
+  context.beginPath();
+  context.lineWidth = 1;
+  context.strokeStyle = "#ff3232";
+  context.fillStyle = "#ff3232";
+  context.arc(posx - movX, posy - movY, 3, 0, 2 * Math.PI, true);
+  context.fill();
+  context.stroke();
+  //grid con nodos de coordenada
+  for (var i = 0; i < size; ++i) {
+    for (var j = 0; j < alphSize; ++j) {
+      context.beginPath();
+      context.lineWidth = 1;
+      context.strokeStyle = "#e124cd";
+      context.fillStyle = "#e124cd";
+      context.arc(
+        posx - movx * (x0 - i) - movX,
+        posy + movy * (y0 - j) - movY,
+        1,
+        0,
+        2 * Math.PI,
+        true
+      );
+      context.fill();
+      context.stroke();
+    }
+  }
+  //dibujo y conexiones de nodos
+  for (var i = 0; i < nodes.length; ++i) {
+    var node = nodes[i];
+    if (i != 0) {
+      context.beginPath();
+      context.lineWidth = 0.25;
+      context.strokeStyle = "#30eaf3";
+      context.fillStyle = "#30eaf3";
+      context.arc(
+        posx - movx * (x0 - node.posX) - movX,
+        posy + movy * (y0 - node.posY) - movY,
+        2,
+        0,
+        2 * Math.PI,
+        true
+      );
+      context.fill();
+      context.stroke();
+    }
+    var colorUnion = "30eaf3";
+    for (var j = 0; j < node.nodeOut.length; ++j) {
+      var pos2X = nodes[map.get(node.nodeOut[j])].posX;
+      var pos2Y = nodes[map.get(node.nodeOut[j])].posY;
+      context.beginPath();
+      context.moveTo(
+        posx - movx * (x0 - node.posX) - movX,
+        posy + movy * (y0 - node.posY) - movY
+      );
+      context.lineTo(
+        posx - movx * (x0 - pos2X) - movX,
+        posy + movy * (y0 - pos2Y) - movY
+      );
+      context.lineWidth = 1;
+      context.strokeStyle = "#" + colorUnion;
+      context.stroke();
+    }
+  }
+}
+function drawGammaGraph(nodes, x0, y0, size) {
+  drawG(nodes, x0, y0, 0, 0, size);
+  window.addEventListener("keydown", checkKeyPressed, false);
+  var i = 0;
+  var j = 0;
+  function checkKeyPressed(e) {
+    if (e.keyCode == "37") {
+      i -= 10;
+    }
+    if (e.keyCode == "38") {
+      j -= 10;
+    }
+    if (e.keyCode == "39") {
+      i += 10;
+    }
+    if (e.keyCode == "40") {
+      j += 10;
+    }
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    drawG(nodes, x0, y0, i, j, size);
+  }
+}
