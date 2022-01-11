@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>AES</title>
+    <style type="text/css">
+        div {
+            font-family: 'Trebuchet MS';
+            color: #000000;
+            background: #FFFFFF;
+            font-size: 10pt;
+        }
+    </style>
+    <script type="text/javascript" src="aes.js"></script>
+    <script type="text/javascript" src="aesCtr.js"></script>
+</head>
+
+<body>
+    <div>
+        <h1>Image encryption and decryption using AES</h1>
+        <br>
+        <form name="f">
+            <canvas id="canvas"></canvas><br>
+            <input id="enc" type="button" value="Encrypt">
+            <input id="dcr" type="button" value="Decrypt"> <br>
+            <br>
+            Password: <input id="password" type="text" size="20" value="password">
+            Length Key: <select id="lenKey">
+                <option value="128">128</option>
+                <option value="192">192</option>
+                <option value="256" selected="selected">256</option>
+            </select>
+            <br><br> Ciphertext: <br>
+            <input id="out" name="encrypted" type="text" size="100">
+            <br><br>
+        </form>
+    <br>
+    <br>
+        <h1>Text encryption and decryption using AES</h1>
+        <br>
+        <form name="f">
+            Plaintext: <br>
+            <input id="plain" name="plaintext" type="text" size="100">
+            <br>
+            <input id="cipherBtn" type="button" value="Encrypt"><br>
+            Password: <input id="passText" type="text" size="20" value="password">
+            Length Key: <select id="lenKeyText">
+                <option value="128">128</option>
+                <option value="192">192</option>
+                <option value="256" selected="selected">256</option>
+            </select>
+            <br><br> Ciphertext: <br>
+            <input id="cipher" name="encrypted" type="text" size="100"><br>
+            <input id="decipherBtn" type="button" value="Decrypt">
+            <br>
+        </form>
+    </div>
+    <script type="text/javascript" src="index.js"> </script>
+
+</html>
