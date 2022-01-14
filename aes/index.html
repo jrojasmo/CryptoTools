@@ -13,7 +13,7 @@
         }
     </style>
     <script type="text/javascript" src="aes.js"></script>
-    <script type="text/javascript" src="aesCtr.js"></script>
+    <script type="text/javascript" src="aesModes.js"></script>
 </head>
 
 <body>
@@ -27,13 +27,13 @@
             <br>
             Password: <input id="password" type="text" size="20" value="password">
             Length Key: <select id="lenKey">
-                <option value="128">128</option>
+                <option value="128" selected="selected">128</option>
                 <option value="192">192</option>
-                <option value="256" selected="selected">256</option>
+                <option value="256">256</option>
             </select>
-            <br><br> Ciphertext: <br>
-            <input id="out" name="encrypted" type="text" size="100">
-            <br><br>
+            <br>
+            Initial Vector: <input id="iv" type="text" size="20" value="inivec">
+            <br>
         </form>
     <br>
     <br>
@@ -46,9 +46,9 @@
             <input id="cipherBtn" type="button" value="Encrypt"><br>
             Password: <input id="passText" type="text" size="20" value="password">
             Length Key: <select id="lenKeyText">
-                <option value="128">128</option>
+                <option value="128" selected="selected">128</option>
                 <option value="192">192</option>
-                <option value="256" selected="selected">256</option>
+                <option value="256">256</option>
             </select>
             <br><br> Ciphertext: <br>
             <input id="cipher" name="encrypted" type="text" size="100"><br>
