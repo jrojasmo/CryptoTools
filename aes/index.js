@@ -1,5 +1,5 @@
 var img = new Image();
-img.src = 'tuxCrip.png';
+img.src = 'tux.png';
 
 img.onload = function () {
     draw(this);
@@ -26,8 +26,17 @@ function draw(img) {
         console.log("lenKey "+lenKey);
         console.log("iv "+iv);
         
-        //encrypt -> aesCtr
-        var arr = addAlpha(encryptECB(removeAlpha(pix), password, lenKey));
+        //encrypt -> aesModes
+        //ECB
+        //var arr = addAlpha(encryptECB(removeAlpha(pix), password, lenKey));
+        //CBC
+        //var arr = addAlpha(encryptCBC(removeAlpha(pix), password, lenKey, iv));
+        //OFB
+        //var arr = addAlpha(encryptOFB(removeAlpha(pix), password, lenKey, iv));
+        //CFB
+        //var arr = addAlpha(encryptCFB(removeAlpha(pix), password, lenKey, iv));
+        //CTR
+        var arr = addAlpha(encryptCTR(removeAlpha(pix), password, lenKey, iv));
         console.log('Ciphertext len. ' + arr.length);
         for (var i = 0; i < pix.length; i++) { pix[i] = arr[i]; }
         ctx.putImageData(imgd, 0, 0);
@@ -45,8 +54,17 @@ function draw(img) {
         console.log("lenKey "+lenKey);
         console.log("iv "+iv);
         
-        //decrypt -> aesCtr
-        var arr = addAlpha(decryptECB(removeAlpha(pix), password, lenKey));
+        //decrypt aesModes
+        //ECB
+        //var arr = addAlpha(decryptECB(removeAlpha(pix), password, lenKey));
+        //CBC
+        //var arr = addAlpha(decryptCBC(removeAlpha(pix), password, lenKey, iv));
+        //OFB
+        //var arr = addAlpha(decryptOFB(removeAlpha(pix), password, lenKey, iv));
+        //CFB
+        //var arr = addAlpha(decryptCFB(removeAlpha(pix), password, lenKey, iv));
+        //CTR
+        var arr = addAlpha(decryptCTR(removeAlpha(pix), password, lenKey, iv));
         for (var i = 0; i < pix.length; i++) { pix[i] = arr[i]; }
         ctx.putImageData(imgd, 0, 0);
         this.value = 'Decrypt ' + ((new Date).getTime() - start) + 'ms';

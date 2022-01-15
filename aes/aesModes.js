@@ -2,9 +2,6 @@
 'use strict';
 if (typeof module != 'undefined' && module.exports) var Aes = require('./aes'); // CommonJS (Node.js)
 /**
- *
- * This encrypts a Unicode string to produces a base64 ciphertext using 128/192/256-bit AES,
- * and the converse to decrypt an encrypted ciphertext.
  * See http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
  *
  * @augments Aes
@@ -12,26 +9,23 @@ if (typeof module != 'undefined' && module.exports) var Aes = require('./aes'); 
 /**
  * Complete 128 bit plaintext blocks for AES.
  *
- *
  * @param   {number[]} plaintext - The password to use to generate a key.
  * @returns {number[]} complete plaintext.
  *
  */
 function paddingText(plaintext) {
     var blockSize = 16;
-    var pad = plaintext.length%blockSize;
-    if(pad==0){
+    var pad = plaintext.length % blockSize;
+    if (pad == 0) {
         return plaintext;
     } else {
-        var nleft = (blockSize-pad)%blockSize;
-        for(var i=0; i<nleft; i++) plaintext.push(nleft);
+        var nleft = (blockSize - pad) % blockSize;
+        for (var i = 0; i < nleft; i++) plaintext.push(nleft);
         return plaintext;
     }
 }
 /**
  * Complete passwords for 128/192/256 bits
- *
- * Unicode multi-byte character safe
  *
  * @param   {number[]} password - The password to use to generate a key.
  * @param   {number} nBits - Number of bits to be used in the key; 128 / 192 / 256.
@@ -57,8 +51,6 @@ function completeKey(password, nBits) {
 /**
  * Encrypt a text using AES encryption in Electronic Codebook Mode.
  *
- * Unicode multi-byte character safe
- *
  * @param   {number[]} plaintext - Source text to be encrypted.
  * @param   {number[]} password - The password to use to generate a key.
  * @param   {number} nBits - Number of bits to be used in the key; 128 / 192 / 256.
@@ -72,10 +64,10 @@ function encryptECB(plaintext, password, nBits) {
     var ciphertext = paddingText(plaintext);
     var block = new Array(blockSize);
     var cipherBlock = new Array(blockSize);
-    for(var i = 0; i < ciphertext.length/blockSize; i++){
-        block = ciphertext.slice(i*blockSize, (i+1)*blockSize);
+    for (var i = 0; i < ciphertext.length / blockSize; i++) {
+        block = ciphertext.slice(i * blockSize, (i + 1) * blockSize);
         cipherBlock = Aes.cipher(block, Aes.keyExpansion(key));
-        for(var j = 0; j < blockSize; j++) ciphertext[i*blockSize+j]=cipherBlock[j];
+        for (var j = 0; j < blockSize; j++) ciphertext[i * blockSize + j] = cipherBlock[j];
     }
     return ciphertext;
 };
@@ -98,11 +90,11 @@ function decryptECB(ciphertext, password, nBits) {
     var plaintext = paddingText(ciphertext);
     var block = new Array(blockSize);
     var cipherBlock = new Array(blockSize);
-    for(var i = 0; i < plaintext.length/blockSize; i++){
-        block = plaintext.slice(i*blockSize, (i+1)*blockSize);
+    for (var i = 0; i < plaintext.length / blockSize; i++) {
+        block = plaintext.slice(i * blockSize, (i + 1) * blockSize);
         //console.log(block);
         cipherBlock = Aes.decipher(block, Aes.keyExpansion(key));
-        for(var j = 0; j < blockSize; j++) plaintext[i*blockSize+j]=cipherBlock[j];
+        for (var j = 0; j < blockSize; j++) plaintext[i * blockSize + j] = cipherBlock[j];
     }
     return plaintext;
 };
@@ -110,35 +102,36 @@ function decryptECB(ciphertext, password, nBits) {
 /**
  * Encrypt a text using AES encryption in Cipher Block Chaining mode.
  *
- * Unicode multi-byte character safe
- *
  * @param   {number[]} plaintext - Source text to be encrypted.
  * @param   {number[]} password - The password to use to generate a key.
  * @param   {number} nBits - Number of bits to be used in the key; 128 / 192 / 256.
  * @returns {number[]} Encrypted text.
  *
  */
- function encryptCBC(plaintext, password, nBits, iv) {
+function encryptCBC(plaintext, password, nBits, iv) {
     var blockSize = 16;  // block size fixed at 16 bytes / 128 bits (Nb=4) for AES
     var key = completeKey(password, nBits);
-    iv = completeKey(iv, 128);
-    console.log(iv);
+    var iniVec = completeKey(iv, 128);
+    //var iniVec = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+    //console.log(iv);
     var ciphertext = paddingText(plaintext);
     var block = new Array(blockSize);
     var cipherBlock = new Array(blockSize);
-    for(var i = 0; i < ciphertext.length/blockSize; i++){
-        block = ciphertext.slice(i*blockSize, (i+1)*blockSize);
+    for (var i = 0; i < ciphertext.length / blockSize; i++) {
+        block = ciphertext.slice(i * blockSize, (i + 1) * blockSize);
         //console.log(block);
-        for(var j=0; j < blockSize; j++){
-            if(i==0){
-                block[j] ^= iv[j];
-            }else{
-                //console.log(block[j] + "^" + ciphertext[(i-1)*blockSize+j]);
-                block[j] ^= ciphertext[(i-1)*blockSize+j];
-            }
+        for (var j = 0; j < blockSize; j++) {
+            block[j] ^= iniVec[j];
+            //console.log(block[j] + "^" + ciphertext[(i-1)*blockSize+j]);
+            //block[j] ^= ciphertext[(i - 1) * blockSize + j];
         }
+        //console.log(block);
         cipherBlock = Aes.cipher(block, Aes.keyExpansion(key));
-        for(var j = 0; j < blockSize; j++) ciphertext[i*blockSize+j]=cipherBlock[j];
+        //console.log(cipherBlock);
+        for (var j = 0; j < blockSize; j++) {
+            ciphertext[i * blockSize + j] = cipherBlock[j];
+            iniVec[j] = ciphertext[i * blockSize + j];
+        }
     }
     return ciphertext;
 };
@@ -154,218 +147,188 @@ function decryptECB(ciphertext, password, nBits) {
 function decryptCBC(ciphertext, password, nBits, iv) {
     var blockSize = 16;  // block size fixed at 16 bytes / 128 bits (Nb=4) for AES
     var key = completeKey(password, nBits);
-    iv = completeKey(iv, 128);
+    var iniVec = completeKey(iv, 128);
+    //var iniVec = [1, 2, 3, 4, 5, 6, 7, 8, 8, 7, 6, 5, 4, 3, 2, 1];
     /*
     console.log(key);
-    */
     console.log("###################");
     console.log(iv);
+    */
     var plaintext = paddingText(ciphertext);
     var block = new Array(blockSize);
     var cipherBlock = new Array(blockSize);
-    for(var i = 0; i < plaintext.length/blockSize; i++){
-        block = plaintext.slice(i*blockSize, (i+1)*blockSize);
+    for (var i = 0; i < plaintext.length / blockSize; i++) {
+        //console.log(iniVec);
+        block = plaintext.slice(i * blockSize, (i + 1) * blockSize);
+        //console.log(block);
         cipherBlock = Aes.decipher(block, Aes.keyExpansion(key));
-        for(var j=0; j < blockSize; j++){                  
-            cipherBlock[j] ^= iv[j];
+        //console.log(cipherBlock);
+        for (var j = 0; j < blockSize; j++) {
+            cipherBlock[j] ^= iniVec[j];
         }
-        for(var j = 0; j < blockSize; j++){
-            iv[j] = plaintext[i*blockSize+j];
-            plaintext[i*blockSize+j]=cipherBlock[j];
-        } 
+        //console.log(cipherBlock);
+        for (var j = 0; j < blockSize; j++) {
+            plaintext[i * blockSize + j] = cipherBlock[j];
+        }
+        iniVec = block;
     }
     return plaintext;
 };
 
-//var pp = encryptCBC([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17],[1,2,3,4],128, [1,2,3,4]);
-//console.log(pp);
-//console.log(decryptCBC(pp,[1,2,3,4],128, [1,2,3,4]));
 
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
-/*  AES Counter-mode implementation in JavaScript       (c) Chris Veness 2005-2014 / MIT Licence  */
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
 /**
- * Encrypt a text using AES encryption in Counter mode of operation.
+ * Encrypt a text using AES encryption in Output Feedback mode.
  *
- * Unicode multi-byte character safe
- *
- * @param   {string} plaintext - Source text to be encrypted.
- * @param   {string} password - The password to use to generate a key.
+ * @param   {number[]} plaintext - Source text to be encrypted.
+ * @param   {number[]} password - The password to use to generate a key.
  * @param   {number} nBits - Number of bits to be used in the key; 128 / 192 / 256.
- * @returns {string} Encrypted text.
+ * @returns {number[]} Encrypted text.
  *
  */
-function encryptCtr(plaintext, password, nBits) {
+function encryptOFB(plaintext, password, nBits, iv) {
     var blockSize = 16;  // block size fixed at 16 bytes / 128 bits (Nb=4) for AES
-    if (!(nBits == 128 || nBits == 192 || nBits == 256)) return ''; // standard allows 128/192/256 bit keys
-    plaintext = String(plaintext).utf8Encode();
-    password = String(password).utf8Encode();
-
-    // use AES itself to encrypt password to get cipher key (using plain password as source for key
-    // expansion) - gives us well encrypted key (though hashed key might be preferred for prod'n use)
-    var nBytes = nBits / 8;  // no bytes in key (16/24/32)
-    var pwBytes = new Array(nBytes);
-    for (var i = 0; i < nBytes; i++) {  // use 1st 16/24/32 chars of password for key
-        pwBytes[i] = isNaN(password.charCodeAt(i)) ? 0 : password.charCodeAt(i);
-    }
-    var key = Aes.cipher(pwBytes, Aes.keyExpansion(pwBytes)); // gives us 16-byte key
-    key = key.concat(key.slice(0, nBytes - 16));  // expand key to 16/24/32 bytes long
-
-    // initialise 1st 8 bytes of counter block with nonce (NIST SP800-38A §B.2): [0-1] = millisec,
-    // [2-3] = random, [4-7] = seconds, together giving full sub-millisec uniqueness up to Feb 2106
-    var counterBlock = new Array(blockSize);
-
-    var nonce = (new Date()).getTime();  // timestamp: milliseconds since 1-Jan-1970
-    var nonceMs = nonce % 1000;
-    var nonceSec = Math.floor(nonce / 1000);
-    var nonceRnd = Math.floor(Math.random() * 0xffff);
-    // for debugging: nonce = nonceMs = nonceSec = nonceRnd = 0;
-
-    for (var i = 0; i < 2; i++) counterBlock[i] = (nonceMs >>> i * 8) & 0xff;
-    for (var i = 0; i < 2; i++) counterBlock[i + 2] = (nonceRnd >>> i * 8) & 0xff;
-    for (var i = 0; i < 4; i++) counterBlock[i + 4] = (nonceSec >>> i * 8) & 0xff;
-
-    // and convert it to a string to go on the front of the ciphertext
-    var ctrTxt = '';
-    for (var i = 0; i < 8; i++) ctrTxt += String.fromCharCode(counterBlock[i]);
-
-    // generate key schedule - an expansion of the key into distinct Key Rounds for each round
-    var keySchedule = Aes.keyExpansion(key);
-
-    var blockCount = Math.ceil(plaintext.length / blockSize);
-    var ciphertxt = new Array(blockCount);  // ciphertext as array of strings
-
-    for (var b = 0; b < blockCount; b++) {
-        // set counter (block #) in last 8 bytes of counter block (leaving nonce in 1st 8 bytes)
-        // done in two stages for 32-bit ops: using two words allows us to go past 2^32 blocks (68GB)
-        for (var c = 0; c < 4; c++) counterBlock[15 - c] = (b >>> c * 8) & 0xff;
-        for (var c = 0; c < 4; c++) counterBlock[15 - c - 4] = (b / 0x100000000 >>> c * 8);
-
-        var cipherCntr = Aes.cipher(counterBlock, keySchedule);  // -- encrypt counter block --
-
-        // block size is reduced on final block
-        var blockLength = b < blockCount - 1 ? blockSize : (plaintext.length - 1) % blockSize + 1;
-        var cipherChar = new Array(blockLength);
-
-        for (var i = 0; i < blockLength; i++) {  // -- xor plaintext with ciphered counter char-by-char --
-            cipherChar[i] = cipherCntr[i] ^ plaintext.charCodeAt(b * blockSize + i);
-            cipherChar[i] = String.fromCharCode(cipherChar[i]);
+    var key = completeKey(password, nBits);
+    var iniVec = completeKey(iv, 128);
+    var ciphertext = paddingText(plaintext);
+    var block = new Array(blockSize);
+    for (var i = 0; i < ciphertext.length / blockSize; i++) {
+        block = ciphertext.slice(i * blockSize, (i + 1) * blockSize);
+        for (var j = 0; j < blockSize; j++) {
+            block[j] ^= iniVec[j];
         }
-        ciphertxt[b] = cipherChar.join('');
+        for (var j = 0; j < blockSize; j++) {
+            ciphertext[i * blockSize + j] = block[j];
+        }
+        iniVec = Aes.cipher(iniVec, Aes.keyExpansion(key));
     }
-
-    // use Array.join() for better performance than repeated string appends
-    var ciphertext = ctrTxt + ciphertxt.join('');
-    ciphertext = ciphertext.base64Encode();
-
     return ciphertext;
 };
 
-
 /**
- * Decrypt a text encrypted by AES in counter mode of operation
+ * Decrypt a text encrypted by AES in Output Feedback mode.
  *
  * @param   {string} ciphertext - Source text to be encrypted.
  * @param   {string} password - Password to use to generate a key.
  * @param   {number} nBits - Number of bits to be used in the key; 128 / 192 / 256.
  * @returns {string} Decrypted text
- *
- * @example
- *   var decr = Aes.Ctr.encrypt('lwGl66VVwVObKIr6of8HVqJr', 'pāşšŵōřđ', 256); // decr: 'big secret'
  */
-function decryptCtr(ciphertext, password, nBits) {
+function decryptOFB(ciphertext, password, nBits, iv) {
+    return encryptOFB(ciphertext, password, nBits, iv);
+};
+
+/**
+ * Encrypt a text using AES encryption in Cipher Feedback mode.
+ *
+ * @param   {number[]} plaintext - Source text to be encrypted.
+ * @param   {number[]} password - The password to use to generate a key.
+ * @param   {number} nBits - Number of bits to be used in the key; 128 / 192 / 256.
+ * @returns {number[]} Encrypted text.
+ *
+ */
+function encryptCFB(plaintext, password, nBits, iv) {
     var blockSize = 16;  // block size fixed at 16 bytes / 128 bits (Nb=4) for AES
-    if (!(nBits == 128 || nBits == 192 || nBits == 256)) return ''; // standard allows 128/192/256 bit keys
-    ciphertext = String(ciphertext).base64Decode();
-    password = String(password).utf8Encode();
-
-    // use AES to encrypt password (mirroring encrypt routine)
-    var nBytes = nBits / 8;  // no bytes in key
-    var pwBytes = new Array(nBytes);
-    for (var i = 0; i < nBytes; i++) {
-        pwBytes[i] = isNaN(password.charCodeAt(i)) ? 0 : password.charCodeAt(i);
-    }
-    var key = Aes.cipher(pwBytes, Aes.keyExpansion(pwBytes));
-    key = key.concat(key.slice(0, nBytes - 16));  // expand key to 16/24/32 bytes long
-
-    // recover nonce from 1st 8 bytes of ciphertext
-    var counterBlock = new Array(8);
-    var ctrTxt = ciphertext.slice(0, 8);
-    for (var i = 0; i < 8; i++) counterBlock[i] = ctrTxt.charCodeAt(i);
-
-    // generate key schedule
-    var keySchedule = Aes.keyExpansion(key);
-
-    // separate ciphertext into blocks (skipping past initial 8 bytes)
-    var nBlocks = Math.ceil((ciphertext.length - 8) / blockSize);
-    var ct = new Array(nBlocks);
-    for (var b = 0; b < nBlocks; b++) ct[b] = ciphertext.slice(8 + b * blockSize, 8 + b * blockSize + blockSize);
-    ciphertext = ct;  // ciphertext is now array of block-length strings
-
-    // plaintext will get generated block-by-block into array of block-length strings
-    var plaintxt = new Array(ciphertext.length);
-
-    for (var b = 0; b < nBlocks; b++) {
-        // set counter (block #) in last 8 bytes of counter block (leaving nonce in 1st 8 bytes)
-        for (var c = 0; c < 4; c++) counterBlock[15 - c] = ((b) >>> c * 8) & 0xff;
-        for (var c = 0; c < 4; c++) counterBlock[15 - c - 4] = (((b + 1) / 0x100000000 - 1) >>> c * 8) & 0xff;
-
-        var cipherCntr = Aes.cipher(counterBlock, keySchedule);  // encrypt counter block
-
-        var plaintxtByte = new Array(ciphertext[b].length);
-        for (var i = 0; i < ciphertext[b].length; i++) {
-            // -- xor plaintxt with ciphered counter byte-by-byte --
-            plaintxtByte[i] = cipherCntr[i] ^ ciphertext[b].charCodeAt(i);
-            plaintxtByte[i] = String.fromCharCode(plaintxtByte[i]);
+    var key = completeKey(password, nBits);
+    var iniVec = completeKey(iv, 128);
+    //var iniVec = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+    var ciphertext = paddingText(plaintext);
+    var block = new Array(blockSize);
+    for (var i = 0; i < ciphertext.length / blockSize; i++) {
+        block = ciphertext.slice(i * blockSize, (i + 1) * blockSize);
+        //console.log(block);
+        //console.log(iniVec);
+        iniVec = Aes.cipher(iniVec, Aes.keyExpansion(key));
+        //console.log(iniVec);
+        for (var j = 0; j < blockSize; j++) {
+            block[j] ^= iniVec[j];
         }
-        plaintxt[b] = plaintxtByte.join('');
+        //console.log(block);
+        for (var j = 0; j < blockSize; j++) {
+            ciphertext[i * blockSize + j] = block[j];
+            iniVec[j] = ciphertext[i * blockSize + j];
+        }
     }
+    //console.log("//////////////////////");
+    return ciphertext;
+};
 
-    // join array of blocks into single plaintext string
-    var plaintext = plaintxt.join('');
-    plaintext = plaintext.utf8Decode();  // decode from UTF8 back to Unicode multi-byte chars
-
+/**
+ * Decrypt a text encrypted by AES in Cipher Feedback mode.
+ *
+ * @param   {string} ciphertext - Source text to be encrypted.
+ * @param   {string} password - Password to use to generate a key.
+ * @param   {number} nBits - Number of bits to be used in the key; 128 / 192 / 256.
+ * @returns {string} Decrypted text
+ */
+function decryptCFB(ciphertext, password, nBits, iv) {
+    var blockSize = 16;  // block size fixed at 16 bytes / 128 bits (Nb=4) for AES
+    var key = completeKey(password, nBits);
+    var iniVec = completeKey(iv, 128);
+    //var iniVec = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+    var plaintext = paddingText(ciphertext);
+    var block = new Array(blockSize);
+    for (var i = 0; i < plaintext.length / blockSize; i++) {
+        block = plaintext.slice(i * blockSize, (i + 1) * blockSize);
+        //console.log(block);
+        //console.log(iniVec);
+        iniVec = Aes.cipher(iniVec, Aes.keyExpansion(key));
+        //console.log(iniVec);
+        for (var j = 0; j < blockSize; j++) {
+            block[j] ^= iniVec[j];
+        }
+        //console.log(block);
+        for (var j = 0; j < blockSize; j++) {
+            iniVec[j] = plaintext[i * blockSize + j];
+            plaintext[i * blockSize + j] = block[j];
+        }
+    }
+    //console.log("//////////////////////");
     return plaintext;
 };
 
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
-/** Extend String object with method to encode multi-byte string to utf8
- *  - monsur.hossa.in/2012/07/20/utf-8-in-javascript.html */
-if (typeof String.prototype.utf8Encode == 'undefined') {
-    String.prototype.utf8Encode = function () {
-        return unescape(encodeURIComponent(this));
-    };
-}
-
-/** Extend String object with method to decode utf8 string to multi-byte */
-if (typeof String.prototype.utf8Decode == 'undefined') {
-    String.prototype.utf8Decode = function () {
-        try {
-            return decodeURIComponent(escape(this));
-        } catch (e) {
-            return this; // invalid UTF-8? return as-is
+/**
+ * Encrypt a text using AES encryption in COUNTER mode.
+ *
+ * @param   {number[]} plaintext - Source text to be encrypted.
+ * @param   {number[]} password - The password to use to generate a key.
+ * @param   {number} nBits - Number of bits to be used in the key; 128 / 192 / 256.
+ * @returns {number[]} Encrypted text.
+ *
+ */
+function encryptCTR(plaintext, password, nBits, iv) {
+    var blockSize = 16;  // block size fixed at 16 bytes / 128 bits (Nb=4) for AES
+    var key = completeKey(password, nBits);
+    var ctr = completeKey(iv, 128);
+    var ciphertext = paddingText(plaintext);
+    var block = new Array(blockSize);
+    var cipherCtr = new Array(blockSize);
+    for (var i = 0; i < ciphertext.length / blockSize; i++) {
+        // Add 1 to ctr
+        for (var c = 0; c < 11; c++) ctr[15 - c] = (i >>> c * 8) & 0xff;
+        for (var c = 0; c < 11; c++) ctr[15 - c - 4] = (i / 0x100000000 >>> c * 8);
+        block = ciphertext.slice(i * blockSize, (i + 1) * blockSize);
+        cipherCtr = Aes.cipher(ctr, Aes.keyExpansion(key));
+        for (var j = 0; j < blockSize; j++) {
+            block[j] ^= cipherCtr[j];
         }
-    };
-}
+        for (var j = 0; j < blockSize; j++) {
+            ciphertext[i * blockSize + j] = block[j];
+        }
+    }
+    return ciphertext;
+};
 
-/** Extend String object with method to encode base64
- *  - developer.mozilla.org/en-US/docs/Web/API/window.btoa, nodejs.org/api/buffer.html
- *  note: if btoa()/atob() are not available (eg IE9-), try github.com/davidchambers/Base64.js */
-if (typeof String.prototype.base64Encode == 'undefined') {
-    String.prototype.base64Encode = function () {
-        if (typeof btoa != 'undefined') return btoa(this); // browser
-        if (typeof Buffer != 'undefined') return new Buffer(this, 'utf8').toString('base64'); // Node.js
-        throw new Error('No Base64 Encode');
-    };
-}
+/**
+ * Decrypt a text encrypted by AES in COUNTER mode.
+ *
+ * @param   {string} ciphertext - Source text to be encrypted.
+ * @param   {string} password - Password to use to generate a key.
+ * @param   {number} nBits - Number of bits to be used in the key; 128 / 192 / 256.
+ * @returns {string} Decrypted text
+ */
+function decryptCTR(ciphertext, password, nBits, iv) {
+    return encryptCTR(ciphertext, password, nBits, iv);
+};
 
-/** Extend String object with method to decode base64 */
-if (typeof String.prototype.base64Decode == 'undefined') {
-    String.prototype.base64Decode = function () {
-        if (typeof atob != 'undefined') return atob(this); // browser
-        if (typeof Buffer != 'undefined') return new Buffer(this, 'base64').toString('utf8'); // Node.js
-        throw new Error('No Base64 Decode');
-    };
-}
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
+//var pp = encryptCTR([255, 254, 253, 252, 0, 250, 0, 1, 2, 50, 100, 43, 36, 33, 56, 43, 23, 15], [1, 2, 3, 4], 128, [1, 2, 3, 4]);
+//console.log(pp);
+//console.log(decryptCTR(pp, [1, 2, 3, 4], 128, [1, 2, 3, 4]));
