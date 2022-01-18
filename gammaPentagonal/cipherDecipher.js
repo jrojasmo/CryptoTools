@@ -379,20 +379,20 @@ function cipher(x0, y0, permutation, clearText, graphType) {
     console.log("WHOOPS");
     return;
   }
-  text = normalizeInput(clearText);
+  var text = normalizeInput(clearText);
   size = permutation.length;
   nodes = gammaGraph(x0, y0, size, graphType);
   //console.log(nodes);
   var cipheredText = "";
   var position = 0;
   for (var i = 0; i < text.length; ++i) {
-    var y = calculatePosition(permutation[position], clearText[i]);
+    var y = calculatePosition(permutation[position], text[i]);
     var shift = 0;
     if (map.get(posToId(x0, y0, position, y, size)) >= 0) {
       shift = nodes[map.get(posToId(x0, y0, position, y, size))].numIn;
     }
     cipheredText += "(";
-    cipheredText += ((shift + dict[clearText[i]]) % alphSize) + "," + y;
+    cipheredText += ((shift + dict[text[i]]) % alphSize) + "," + y;
     cipheredText += ")";
     if (i < text.length - 1) cipheredText += ",";
     ++position;
@@ -400,7 +400,50 @@ function cipher(x0, y0, permutation, clearText, graphType) {
   }
   return cipheredText;
 }
-//tests
-//console.log(posToId(2, 2, 0, 0, 4));
-//console.log(gammaGraph(1, 1, 5, 2));
+function decipher(x0, y0, permutation, cipherText, graphType) {
+  if (!isAValidPermutation(permutation)) {
+    console.log("WHOOPS");
+    return;
+  }
+  size = permutation.length;
+  var clearText = "";
+  var position = 0;
+  for (var i = 0; i < cipherText.length; ++i) {
+    if (cipherText[i] == "(") {
+      ++i;
+      var a = "";
+      while (cipherText[i] != ",") {
+        a += cipherText[i];
+        ++i;
+      }
+      ++i;
+      var b = "";
+      while (cipherText[i] != ")") {
+        b += cipherText[i];
+        ++i;
+      }
+      console.log(a, b);
+    } else continue;
+    var c = parseInt(b);
+    nodes = gammaGraph(x0, y0, size, graphType);
+    var shift = 0;
+    if (map.get(posToId(x0, y0, a, b, size)) >= 0) {
+      shift = nodes[map.get(posToId(x0, y0, a, b, size))].numIn;
+    }
+    clearText += dict1[(c + permutation[position]) % alphSize];
+    ++position;
+    position %= size;
+  }
+
+  return clearText;
+}
 console.log(cipher(-8, -6, [3, 0, 2, 7, 9, 6, 1, 5, 4, 8], "the almond", 1));
+console.log(
+  decipher(
+    -8,
+    -6,
+    [3, 0, 2, 7, 9, 6, 1, 5, 4, 8],
+    cipher(-8, -6, [3, 0, 2, 7, 9, 6, 1, 5, 4, 8], "the almond", 1),
+    1
+  )
+);
