@@ -127,33 +127,48 @@ function sieveOfEratosthenes(n) {
 }
 
 const alphSize = 26;
-
-function cipher(clearText, totient, n, b) {
-  var pair = new Pair(0, 0);
-  var gcd = gcdExtended(b, totient, pair);
-  if (gcd != 1) {
-    console.log("ERROR, b no es invertible modulo n");
-    return;
+const asciiCodeOfA = 97;
+function cipher(clearText, n, b, totient = -1) {
+  if (totient > 0) {
+    var pair = [0, 0];
+    var gcd = gcdExtended(b, totient, pair);
+    if (gcd != 1) {
+      console.log("ERROR, b no es invertible modulo n");
+      return;
+    }
   }
-  console.log(pair.x, pair.y);
   var text = normalizeInput(clearText);
-  //   console.log(text);
   var cipheredText = [];
-  var asciiCodeOfA = 97;
+
   for (var i = 0; i < text.length; ++i) {
     var number = power(dict[text[i]] + asciiCodeOfA, b, n);
     cipheredText.push(number);
   }
   return cipheredText;
 }
-function decipher(array) {
-  for (var i = 0; i < array.length; ++i) {}
+function decipher(array, n, totient, b) {
+  var pair = new Pair(0, 0);
+  gcdExtended(b, totient, pair);
+  var a = pair.x;
+  while (a < 0) {
+    a += totient;
+    a %= totient;
+  }
+  var clearText = "";
+  for (var i = 0; i < array.length; ++i) {
+    clearText += dict1[power(array[i], a, n) - asciiCodeOfA];
+  }
+  return clearText;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // var pair = new Pair(0, 0);
-// var a = 35;
-// var b = 15;
+// var a = 28;
+// var b = 75;
 // var g = gcdExtended(a, b, pair);
+// console.log(g);
 // console.log(pair.x, pair.y);
-console.log(cipher("esto es una prueba", 419328, 420643, 292993));
+console.log(cipher("esto es una prueba", 420643, 292993));
+console.log(
+  decipher(cipher("esto es una prueba", 420643, 292993), 420643, 419328, 292993)
+);
