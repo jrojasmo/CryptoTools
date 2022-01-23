@@ -94,7 +94,7 @@ function power(x, y, p) {
   return res;
 }
 
-function gcdExtended(a, b, pair) {
+function gcdExtended(a, b, pair = new Pair(0, 0)) {
   if (a == 0) {
     pair.x = 0;
     pair.y = 1;
@@ -108,9 +108,6 @@ function gcdExtended(a, b, pair) {
 
   return gcd;
 }
-var maxNumber = 10000000;
-var primerArray = sieveOfEratosthenes(maxNumber);
-
 function sieveOfEratosthenes(n) {
   var array = [];
   prime = Array.from({ length: n + 1 }, (_, i) => true);
@@ -126,17 +123,12 @@ function sieveOfEratosthenes(n) {
   return array;
 }
 
+var maxNumber = 10000000;
+var primeArray = sieveOfEratosthenes(maxNumber);
+var primeNumber = primeArray.length;
 const alphSize = 26;
 const asciiCodeOfA = 97;
-function cipher(clearText, n, b, totient = -1) {
-  if (totient > 0) {
-    var pair = [0, 0];
-    var gcd = gcdExtended(b, totient, pair);
-    if (gcd != 1) {
-      console.log("ERROR, b no es invertible modulo n");
-      return;
-    }
-  }
+function cipher(clearText, n, b) {
   var text = normalizeInput(clearText);
   var cipheredText = [];
 
@@ -146,8 +138,10 @@ function cipher(clearText, n, b, totient = -1) {
   }
   return cipheredText;
 }
-function decipher(array, n, totient, b) {
+function decipher(array, b, p, q) {
   var pair = new Pair(0, 0);
+  var n = p * q;
+  var totient = (p - 1) * (q - 1);
   gcdExtended(b, totient, pair);
   var a = pair.x;
   while (a < 0) {
@@ -156,19 +150,49 @@ function decipher(array, n, totient, b) {
   }
   var clearText = "";
   for (var i = 0; i < array.length; ++i) {
-    clearText += dict1[power(array[i], a, n) - asciiCodeOfA];
+    var num = (power(array[i], a, n) - asciiCodeOfA) % 26;
+    while (num < 0) {
+      num += 26;
+      num %= 26;
+    }
+    clearText += dict1[num];
   }
   return clearText;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+function generateKey() {
+  var p, q;
+  var minPrime = 1000;
+  p = Math.floor(Math.random() * primeNumber);
+  while (p <= minPrime) {
+    p = Math.floor(Math.random() * primeNumber);
+  }
+  q = Math.floor(Math.random() * primeNumber);
+  while (q <= minPrime) {
+    q = Math.floor(Math.random() * primeNumber);
+  }
+  p = primeArray[p];
+  q = primeArray[q];
+  var array = [];
+  array.push(p * q);
+  array.push(p);
+  array.push(q);
+  var max = (p - 1) * (q - 1);
+  var b = Math.floor(Math.random() * max);
+  while (gcdExtended(b, max) != 1) {
+    b = Math.floor(Math.random() * max);
+  }
+  array.push(b);
+  return array;
+}
 // var pair = new Pair(0, 0);
 // var a = 28;
 // var b = 75;
 // var g = gcdExtended(a, b, pair);
 // console.log(g);
 // console.log(pair.x, pair.y);
-console.log(cipher("esto es una prueba", 420643, 292993));
-console.log(
-  decipher(cipher("esto es una prueba", 420643, 292993), 420643, 419328, 292993)
-);
+// console.log(cipher("esto es una prueba", 420643, 292993));
+// console.log(
+//   decipher(cipher("esto es una prueba", 420643, 292993), 292993, 547, 769)
+// );
+// console.log(generateKey());
