@@ -139,8 +139,9 @@ function cipher(clearText, totient, n, b) {
   var text = normalizeInput(clearText);
   //   console.log(text);
   var cipheredText = [];
+  var asciiCodeOfA = 97;
   for (var i = 0; i < text.length; ++i) {
-    var number = power(dict[text[i]] + 97, b, n);
+    var number = power(dict[text[i]] + asciiCodeOfA, b, n);
     cipheredText.push(number);
   }
   return cipheredText;
