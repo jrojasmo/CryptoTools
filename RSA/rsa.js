@@ -140,8 +140,7 @@ function cipher(clearText, totient, n, b) {
   //   console.log(text);
   var cipheredText = [];
   for (var i = 0; i < text.length; ++i) {
-    // console.log(dict[text[i]]);
-    var number = power(dict[text[i]], b, n);
+    var number = power(dict[text[i]] + 97, b, n);
     cipheredText.push(number);
   }
   return cipheredText;
