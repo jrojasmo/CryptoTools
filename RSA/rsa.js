@@ -108,20 +108,18 @@ function gcdExtended(a, b, pair) {
 
   return gcd;
 }
+var maxNumber = 10000000;
+var primerArray = sieveOfEratosthenes(maxNumber);
+
 function sieveOfEratosthenes(n) {
   var array = [];
   prime = Array.from({ length: n + 1 }, (_, i) => true);
 
   for (p = 2; p * p <= n; p++) {
-    // If prime[p] is not changed, then it is a
-    // prime
     if (prime[p] == true) {
-      // Update all multiples of p
       for (i = p * p; i <= n; i += p) prime[i] = false;
     }
   }
-
-  // Print all prime numbers
   for (i = 2; i <= n; i++) {
     if (prime[i] == true) array.push(i);
   }
@@ -130,19 +128,32 @@ function sieveOfEratosthenes(n) {
 
 const alphSize = 26;
 
-function cipher(clearText) {
+function cipher(clearText, totient, n, b) {
+  var pair = new Pair(0, 0);
+  var gcd = gcdExtended(b, totient, pair);
+  if (gcd != 1) {
+    console.log("ERROR, b no es invertible modulo n");
+    return;
+  }
+  console.log(pair.x, pair.y);
   var text = normalizeInput(clearText);
-  var cipheredText = "";
+  //   console.log(text);
+  var cipheredText = [];
+  for (var i = 0; i < text.length; ++i) {
+    // console.log(dict[text[i]]);
+    var number = power(dict[text[i]], b, n);
+    cipheredText.push(number);
+  }
   return cipheredText;
 }
-function decipher() {}
+function decipher(array) {
+  for (var i = 0; i < array.length; ++i) {}
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-var pair = new Pair(0, 0);
-var a = 35;
-var b = 15;
-var g = gcdExtended(a, b, pair);
-console.log(pair.x, pair.y);
-
-var n = 10000000;
-var array = sieveOfEratosthenes(n);
+// var pair = new Pair(0, 0);
+// var a = 35;
+// var b = 15;
+// var g = gcdExtended(a, b, pair);
+// console.log(pair.x, pair.y);
+console.log(cipher("esto es una prueba", 419328, 420643, 292993));
