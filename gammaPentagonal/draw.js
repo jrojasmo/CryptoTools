@@ -525,3 +525,5 @@ function drawGammaGraph(nodes, x0, y0, size) {
     drawG(nodes, x0, y0, i, j, size);
   }
 }
+let x = 10;
+console.log(x.MAX_VALUE);
