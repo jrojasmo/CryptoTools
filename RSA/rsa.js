@@ -150,7 +150,7 @@ function decipher(array, b, p, q) {
   }
   var clearText = "";
   for (var i = 0; i < array.length; ++i) {
-    var num = (power(array[i], a, n) - asciiCodeOfA) % 26;
+    var num = power(array[i], a, n) - asciiCodeOfA;
     while (num < 0) {
       num += 26;
       num %= 26;
@@ -191,8 +191,15 @@ function generateKey() {
 // var g = gcdExtended(a, b, pair);
 // console.log(g);
 // console.log(pair.x, pair.y);
-// console.log(cipher("esto es una prueba", 420643, 292993));
-// console.log(
-//   decipher(cipher("esto es una prueba", 420643, 292993), 292993, 547, 769)
-// );
-// console.log(generateKey());
+var array = generateKey();
+console.log(array);
+console.log(cipher("esto es una prueba", array[0], array[3]));
+console.log(
+  decipher(
+    cipher("esto es una prueba", array[0], array[3]),
+    array[3],
+    array[1],
+    array[2]
+  )
+);
+console.log(array);
