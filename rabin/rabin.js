@@ -117,17 +117,18 @@ function sieveOfEratosthenes(n) {
     }
   }
   for (i = 2; i <= n; i++) {
-    if (prime[i] == true) array.push(i);
+    if (prime[i] == true && i % 4 == 3) array.push(i);
   }
   return array;
 }
 
-var maxNumber = 10000;
+var maxNumber = 1000000;
 var primeArray = sieveOfEratosthenes(maxNumber);
 var primeNumber = primeArray.length;
 const alphSize = 26;
 const asciiCodeOfA = 97;
-function cipher(clearText, n, b) {
+function cipher(clearText, n) {
+  var b = 2;
   var text = normalizeInput(clearText);
   var cipheredText = [];
 
@@ -137,51 +138,43 @@ function cipher(clearText, n, b) {
   }
   return cipheredText;
 }
-function decipher(array, b, p, q) {
+function decipher(array, p, q) {
   var pair = new Pair(0, 0);
   var n = p * q;
-  var totient = (p - 1) * (q - 1);
-  gcdExtended(b, totient, pair);
-  var a = pair.x;
-  while (a < 0) {
-    a += totient;
-    a %= totient;
-  }
-  var clearText = "";
-  for (var i = 0; i < array.length; ++i) {
-    var num = power(array[i], a, n) - asciiCodeOfA;
-    while (num < 0) {
-      num += 26;
-      num %= 26;
-    }
-    clearText += dict1[num];
-  }
-  return clearText;
+  //   var totient = (p - 1) * (q - 1);
+  //   gcdExtended(b, totient, pair);
+  //   var a = pair.x;
+  //   while (a < 0) {
+  //     a += totient;
+  //     a %= totient;
+  //   }
+  //   var clearText = "";
+  //   for (var i = 0; i < array.length; ++i) {
+  //     var num = power(array[i], a, n) - asciiCodeOfA;
+  //     while (num < 0) {
+  //       num += 26;
+  //       num %= 26;
+  //     }
+  //     clearText += dict1[num];
+  //   }
+  //   return clearText;
 }
 
 function generateKey() {
   var p, q;
   var minPrime = 1000;
-  p = Math.floor(Math.random() * primeNumber);
+  p = primeArray[Math.floor(Math.random() * primeNumber)];
   while (p <= minPrime) {
-    p = Math.floor(Math.random() * primeNumber);
+    p = primeArray[Math.floor(Math.random() * primeNumber)];
   }
-  q = Math.floor(Math.random() * primeNumber);
-  while (q <= minPrime) {
-    q = Math.floor(Math.random() * primeNumber);
+  q = primeArray[Math.floor(Math.random() * primeNumber)];
+  while (q <= minPrime || q == p) {
+    q = primeArray[Math.floor(Math.random() * primeNumber)];
   }
-  p = primeArray[p];
-  q = primeArray[q];
   var array = [];
   array.push(p * q);
   array.push(p);
   array.push(q);
-  var max = (p - 1) * (q - 1);
-  var b = Math.floor(Math.random() * max);
-  while (gcdExtended(b, max) != 1) {
-    b = Math.floor(Math.random() * max);
-  }
-  array.push(b);
   return array;
 }
 // var pair = new Pair(0, 0);
@@ -192,13 +185,13 @@ function generateKey() {
 // console.log(pair.x, pair.y);
 var array = generateKey();
 console.log(array);
-console.log(cipher("lalalala", array[0], array[3]));
-console.log(
+console.log(cipher("abrwgt", array[0], array[3]));
+/*console.log(
   decipher(
     cipher("esto es una prueba", array[0], array[3]),
     array[3],
     array[1],
     array[2]
   )
-);
-console.log(array);
+);*/
+//console.log(array);
