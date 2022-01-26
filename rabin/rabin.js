@@ -122,42 +122,150 @@ function sieveOfEratosthenes(n) {
   return array;
 }
 
-var maxNumber = 1000000;
+function findSquareRoots(y, p, q) {
+  var mp = power(y, (p + 1) / 4, p);
+  var mq = power(y, (q + 1) / 4, q);
+  //console.log(mp, mq);
+  var pair = new Pair(0, 0);
+  var n = p * q;
+  gcdExtended(p, q, pair);
+  var yp = pair.x;
+  var yq = pair.y;
+  var r1 = (yp * p * mq + yq * q * mp) % n;
+  while (r1 < 0) {
+    r1 += n;
+    r1 %= n;
+  }
+  var r2 = n - r1;
+  var r3 = (yp * p * mq - yq * q * mp) % n;
+  while (r3 < 0) {
+    r3 += n;
+    r3 %= n;
+  }
+  var r4 = n - r3;
+  var array = [];
+  array.push(r1, r2, r3, r4);
+  return array;
+}
+
+var maxNumber = 44000;
 var primeArray = sieveOfEratosthenes(maxNumber);
 var primeNumber = primeArray.length;
 const alphSize = 26;
 const asciiCodeOfA = 97;
-function cipher(clearText, n) {
-  var b = 2;
+const asciiCodeOfZ = 122;
+
+function cipher(clearText, n, B) {
   var text = normalizeInput(clearText);
   var cipheredText = [];
 
   for (var i = 0; i < text.length; ++i) {
-    var number = power(dict[text[i]] + asciiCodeOfA, b, n);
+    var x = dict[text[i]] + asciiCodeOfA;
+    var number = x * (x + B);
+    number %= n;
     cipheredText.push(number);
   }
   return cipheredText;
 }
-function decipher(array, p, q) {
+function decipher(array, p, q, B) {
+  if (p * q <= asciiCodeOfZ) {
+    console.log(
+      "n es algo pequeño por lo que pueden haber problemas en el descifrado"
+    );
+  }
   var pair = new Pair(0, 0);
   var n = p * q;
-  //   var totient = (p - 1) * (q - 1);
-  //   gcdExtended(b, totient, pair);
-  //   var a = pair.x;
-  //   while (a < 0) {
-  //     a += totient;
-  //     a %= totient;
-  //   }
-  //   var clearText = "";
-  //   for (var i = 0; i < array.length; ++i) {
-  //     var num = power(array[i], a, n) - asciiCodeOfA;
-  //     while (num < 0) {
-  //       num += 26;
-  //       num %= 26;
-  //     }
-  //     clearText += dict1[num];
-  //   }
-  //   return clearText;
+  gcdExtended(4, p * q, pair);
+  var invFour = pair.x;
+  pair.x = 0;
+  pair.y = 0;
+  gcdExtended(2, p * q, pair);
+  var invTwo = pair.x;
+  while (invFour < 0) {
+    invFour += n;
+    invFour %= n;
+  }
+  while (invTwo < 0) {
+    invTwo += n;
+    invTwo %= n;
+  }
+  var toFind = B * B * invFour;
+  toFind %= n;
+  var posibilities = [];
+  for (var i = 0; i < alphSize; ++i) {
+    posibilities.push([]);
+    //console.log(posibilities[i].length);
+  }
+  for (var i = 0; i < array.length; ++i) {
+    var root = toFind + array[i];
+    var roots = findSquareRoots(root, p, q);
+    var minus = B * invTwo;
+    minus %= n;
+    for (var j = 0; j < roots.length; ++j) {
+      roots[j] -= minus;
+      while (roots[j] < 0) {
+        roots[j] += n;
+        roots[j] %= n;
+      }
+    }
+    console.log(roots);
+    for (var j = 0; j < roots.length; ++j) {
+      if (roots[j] >= asciiCodeOfA && roots[j] <= asciiCodeOfZ) {
+        var index = roots[j] - asciiCodeOfA;
+        if (posibilities[index].indexOf(array[i]) == -1) {
+          posibilities[index].push(array[i]);
+        }
+      }
+    }
+  }
+  var toPrint = [];
+  var posib = 1;
+  for (var i = 0; i < alphSize; ++i) {
+    var arr = [];
+    arr.push(dict1[i]);
+    if (posibilities[i].length > 0) {
+      arr.push(posibilities[i]);
+      toPrint.push(arr);
+      posib = posib * posibilities[i].length;
+    }
+  }
+  var clearText;
+  console.log(toPrint);
+  if (posib == 1) {
+    console.log("Solo hay una forma de descifrar el siguiente texto:");
+    clearText = "";
+    var map = new Map();
+    for (var i = 0; i < toPrint.length; ++i) {
+      map.set(toPrint[i][1][0], toPrint[i][0]);
+    }
+    for (var i = 0; i < array.length; ++i) {
+      clearText += map.get(array[i]);
+    }
+  } else {
+    if (posib > 1) {
+      console.log(
+        "Hay más de una forma de descifrar el siguiente texto, las posibilidades son las siguientes"
+      );
+      var mask = [];
+      var cota = [];
+      var hasMore = [];
+      for (var i = 0; i < toPrint.length; ++i) {
+        mask.push(0);
+        cota.push(toPrint[i][1].length);
+        if (toPrint[i][1].length > 1) {
+          hasMore.push(true);
+        } else hasMore.push(false);
+      }
+      clearText = [];
+
+      for (var i = 0; i < posib; ++i) {
+        var tempPosibility = [];
+        clearText.push(tempPosibility);
+        addOne(mask, cota);
+      }
+    }
+  }
+  return clearText;
 }
 
 function generateKey() {
@@ -183,15 +291,11 @@ function generateKey() {
 // var g = gcdExtended(a, b, pair);
 // console.log(g);
 // console.log(pair.x, pair.y);
-var array = generateKey();
-console.log(array);
-console.log(cipher("abrwgt", array[0], array[3]));
-/*console.log(
-  decipher(
-    cipher("esto es una prueba", array[0], array[3]),
-    array[3],
-    array[1],
-    array[2]
-  )
-);*/
+// var array = generateKey();
+// console.log(array);
+console.log("CIFRAR");
+console.log(cipher("abcd", 8561, 9));
+console.log("DESCIFRAR");
+console.log(decipher(cipher("abcd", 8561, 9), 7, 1223, 9));
 //console.log(array);
+//console.log(findSquareRoots(23, 7, 11));
