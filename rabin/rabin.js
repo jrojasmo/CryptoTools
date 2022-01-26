@@ -250,16 +250,35 @@ function decipher(array, p, q, B) {
       var cota = [];
       var hasMore = [];
       for (var i = 0; i < toPrint.length; ++i) {
-        mask.push(0);
-        cota.push(toPrint[i][1].length);
         if (toPrint[i][1].length > 1) {
+          mask.push(0);
+          cota.push(toPrint[i][1].length);
           hasMore.push(true);
         } else hasMore.push(false);
       }
       clearText = [];
 
-      for (var i = 0; i < posib; ++i) {
+      for (var q = 0; q < posib; ++q) {
+        var index = 0;
+        var tempmap = new Map();
         var tempPosibility = [];
+        var arreglo = [];
+        for (var j = 0; j < toPrint.length; ++j) {
+          if (hasMore[j]) {
+            tempmap.set(toPrint[j][1][mask[index]], toPrint[j][0]);
+            arreglo.push([toPrint[j][0], toPrint[j][1][mask[index]]]);
+            ++index;
+          } else {
+            tempmap.set(toPrint[j][1][0], toPrint[j][0]);
+            arreglo.push([toPrint[j][0], toPrint[j][1][0]]);
+          }
+        }
+        tempPosibility.push(arreglo);
+        var tempText = "";
+        for (var j = 0; j < array.length; ++j) {
+          tempText += tempmap.get(array[j]);
+        }
+        tempPosibility.push(tempText);
         clearText.push(tempPosibility);
         addOne(mask, cota);
       }
@@ -267,6 +286,8 @@ function decipher(array, p, q, B) {
   }
   return clearText;
 }
+
+function addOne(mask, cota) {}
 
 function generateKey() {
   var p, q;
