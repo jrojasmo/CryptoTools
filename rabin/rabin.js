@@ -148,7 +148,7 @@ function findSquareRoots(y, p, q) {
   return array;
 }
 
-var maxNumber = 44000;
+var maxNumber = 10000;
 var primeArray = sieveOfEratosthenes(maxNumber);
 var primeNumber = primeArray.length;
 const alphSize = 26;
@@ -161,7 +161,9 @@ function cipher(clearText, n, B) {
 
   for (var i = 0; i < text.length; ++i) {
     var x = dict[text[i]] + asciiCodeOfA;
-    var number = x * (x + B);
+    var number1 = x + B;
+    number1 %= n;
+    var number = x * number1;
     number %= n;
     cipheredText.push(number);
   }
@@ -206,7 +208,7 @@ function decipher(array, p, q, B) {
     invTwo += n;
     invTwo %= n;
   }
-  var toFind = B * B * invFour;
+  var toFind = ((B * B) % n) * invFour;
   toFind %= n;
   var posibilities = [];
   for (var i = 0; i < alphSize; ++i) {
@@ -225,7 +227,7 @@ function decipher(array, p, q, B) {
         roots[j] %= n;
       }
     }
-    console.log(roots);
+    //console.log(roots);
     for (var j = 0; j < roots.length; ++j) {
       if (roots[j] >= asciiCodeOfA && roots[j] <= asciiCodeOfZ) {
         var index = roots[j] - asciiCodeOfA;
@@ -247,9 +249,9 @@ function decipher(array, p, q, B) {
     }
   }
   var clearText;
-  console.log(toPrint);
+  // console.log(toPrint);
   if (posib == 1) {
-    console.log("Solo hay una forma de descifrar el siguiente texto:");
+    console.log("Solo hay una forma de descifrar el texto:");
     clearText = "";
     var map = new Map();
     for (var i = 0; i < toPrint.length; ++i) {
@@ -316,7 +318,9 @@ function generateKey() {
     q = primeArray[Math.floor(Math.random() * primeNumber)];
   }
   var array = [];
+  var b = Math.floor(Math.random() * (p * q - 1));
   array.push(p * q);
+  array.push(b);
   array.push(p);
   array.push(q);
   return array;
@@ -327,9 +331,14 @@ function generateKey() {
 // var g = gcdExtended(a, b, pair);
 // console.log(g);
 // console.log(pair.x, pair.y);
-// var array = generateKey();
-// console.log(array);
-// console.log("CIFRAR");
+var array = generateKey();
+//console.log(array);
 // console.log(cipher("abcd", 8561, 9));
-console.log("DESCIFRAR");
-console.log(decipher(cipher("abcd", 8561, 9), 7, 1223, 9));
+console.log(
+  decipher(
+    cipher("aghrtertyhhhrnbtyimybvrtcwerzxtvbcd", array[0], array[1]),
+    array[2],
+    array[3],
+    array[1]
+  )
+);
