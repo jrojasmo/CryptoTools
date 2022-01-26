@@ -333,7 +333,7 @@ function generateKey() {
 // console.log(pair.x, pair.y);
 var array = generateKey();
 //console.log(array);
-// console.log(cipher("abcd", 8561, 9));
+console.log(cipher("abcd", 8561, 9));
 console.log(
   decipher(
     cipher("aghrtertyhhhrnbtyimybvrtcwerzxtvbcd", array[0], array[1]),
