@@ -167,6 +167,23 @@ function cipher(clearText, n, B) {
   }
   return cipheredText;
 }
+function addOne(mask, cota) {
+  var acarreo = 0;
+  if (mask.length >= 1) {
+    mask[0] += 1;
+    if (mask[0] == cota[0]) {
+      acarreo = 1;
+      mask[0] = 0;
+    }
+    for (var i = 1; i < mask.length; ++i) {
+      mask[i] += acarreo;
+      if (mask[i] == cota[i]) {
+        mask[i] = 0;
+      } else acarreo = 0;
+    }
+  }
+}
+
 function decipher(array, p, q, B) {
   if (p * q <= asciiCodeOfZ) {
     console.log(
@@ -287,8 +304,6 @@ function decipher(array, p, q, B) {
   return clearText;
 }
 
-function addOne(mask, cota) {}
-
 function generateKey() {
   var p, q;
   var minPrime = 1000;
@@ -314,9 +329,7 @@ function generateKey() {
 // console.log(pair.x, pair.y);
 // var array = generateKey();
 // console.log(array);
-console.log("CIFRAR");
-console.log(cipher("abcd", 8561, 9));
+// console.log("CIFRAR");
+// console.log(cipher("abcd", 8561, 9));
 console.log("DESCIFRAR");
 console.log(decipher(cipher("abcd", 8561, 9), 7, 1223, 9));
-//console.log(array);
-//console.log(findSquareRoots(23, 7, 11));
