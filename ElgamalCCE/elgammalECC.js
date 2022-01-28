@@ -213,13 +213,14 @@ function discrete_log(point1_a,point2_a,a, p) {
 
 
  
-function Elgamal_ECC_cipher(plainText,a,b,p, kPrivBob, kPrivAlice){
+function Elgamal_ECC_cipher(plainText,a,b,p,kPrivBob){
+    // var primeArray = sieveOfEratosthenes(p-1);
+    // var primeNumber = primeArray.length;
     var Plain_text_array = plaintext_2_array(plainText);
     var ECC_array = Elliptic_Curve(a,b,p);  // a,b,p : ((y^2 = x^3 + ax + b) mod p), return array of points in ECC
     var alpha = ECC_array[0];
-    //console.log("Base point",Base_point);//
+    var random_K = 13; // random K of text
     var betaBob = a_and_p_product(alpha,kPrivBob,a,p);
-    // ENCRIPTION :
     array_char_ciphers = [];
     for (let i = 0; i < Plain_text_array.length; i++) {
         d_1 = Plain_text_array[i][0];
@@ -227,7 +228,7 @@ function Elgamal_ECC_cipher(plainText,a,b,p, kPrivBob, kPrivAlice){
         P_1 = a_and_p_product(alpha,d_1,a,p);
         P_2 = a_and_p_product(alpha,d_2,a,p);
         //console.log("Pes",P_1,P_2);
-        K_c = a_and_p_product(betaBob, kPrivAlice,a,p);
+        K_c = a_and_p_product(betaBob, random_K,a,p);
         //console.log("KK",K_c); 
         C_1 = sum_P_Q(P_1,K_c,p);
         C_2 = sum_P_Q(P_2,K_c,p);
@@ -238,12 +239,13 @@ function Elgamal_ECC_cipher(plainText,a,b,p, kPrivBob, kPrivAlice){
     return array_char_ciphers;
 }
 
-function Elgamal_ECC_decipher(Cipher_text_array,a,b,p,kPrivBob, kPrivAlice) { 
+function Elgamal_ECC_decipher(Cipher_text_array,a,b,p,kPrivBob) { 
     var ECC_array = Elliptic_Curve(a,b,p);  // a,b,p : ((y^2 = x^3 + ax + b) mod p), return array of points in ECC
     var alpha = ECC_array[0];
     var array_char_deciphers = [];
-    var betaAlice = a_and_p_product(alpha,kPrivAlice,a,p);
-    K_c2 = a_and_p_product(betaAlice, kPrivBob,a,p);
+    var random_K = 13; // random K of text
+    var y_0 = a_and_p_product(alpha,random_K,a,p);
+    K_c2 = a_and_p_product(y_0, kPrivBob,a,p);
     //console.log(K_c2);
     for (let i = 0; i < Cipher_text_array.length; i++) {
         P_1p = sum_P_Q(Cipher_text_array[i][0],inv_aditive(K_c2,p),p);
@@ -278,23 +280,21 @@ var prime_z = generateKey(primeNumberz,primeArrayz,300);
 console.log("prime_z",prime_z);
 var a = 3;
 var b = 5;
+
 var primeArray = sieveOfEratosthenes(prime_z-1);
 var primeNumber = primeArray.length;
-K_of_priv_key_alice = generateKey(primeNumber,primeArray); // private key for Alice or Bob
 K_of_priv_key_bob = generateKey(primeNumber,primeArray); // private key for Alice or Bob
-console.log("PrivKey Alice and Bob",K_of_priv_key_alice,K_of_priv_key_bob);
 
 
 //--------------------------------------------- Cipher & Decipher ------------------------------------------------------------------ 
 
-list_cipher = Elgamal_ECC_cipher("Holaminombrees",a,b,prime_z,K_of_priv_key_bob,K_of_priv_key_alice);
+list_cipher = Elgamal_ECC_cipher("Holaminombrees",a,b,prime_z,K_of_priv_key_bob);
 // Curva Elíptica: a, b, primo
 // Punto Base (alpha) (Interno)
-// beta_bob 
-// K_of_priv_key_alice
+// K_of_priv_key_bob
 
-Elgamal_ECC_decipher(list_cipher,a,b,prime_z, K_of_priv_key_alice, K_of_priv_key_bob);
+
+Elgamal_ECC_decipher(list_cipher,a,b,prime_z, K_of_priv_key_bob);
 // Curva Elíptica: a, b, primo
 // Punto Base (alpha) (Interno)
-// beta_alice
 // K_of_priv_key_bob
