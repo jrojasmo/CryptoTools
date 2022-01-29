@@ -149,7 +149,6 @@ function signSha(shaString, p, q, alpha, a) {
     arr.push(Number("0x" + shaString.slice(i * jump, (i + 1) * jump)));
   }
   for (var i = 0; i < arr.length; i++) {
-    ranK = getRandomInt(1, q - 1);
     signArr.push(sign(arr[i], p, q, alpha, a));
   }
 
@@ -202,7 +201,7 @@ var llave = generateKey(); // [p, q, alpha, beta, a]
 console.log(llave);
 var firma = signSha(text, llave[0], llave[1], llave[2], llave[4]);
 console.log(firma);
-console.log(verifySha(text, firma, llave[0], llave[1], llave[2], llave[3]));
+console.log(verifySha(text2, firma, llave[0], llave[1], llave[2], llave[3]));
 
 /*
 var llave = generateKey();
