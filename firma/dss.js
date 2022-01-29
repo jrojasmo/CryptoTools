@@ -1,37 +1,3 @@
-var text = '50137ab0be5e0c73ee0cd747f457e71822d6d5dcf00a7e807ed283467e42ffff';
-/*
-var p = 607;
-var q = 101;
-var alpha = 331;
-var a = 321;
-*/
-
-var p = 7879;
-var q = 101;
-var alpha = 170;
-var a = 75;
-//console.log(power(alpha, a, p));
-function sign(numb, ranK){ // k entre 1 y q
-  var gamma = power(alpha, ranK, p) % q;
-  var delta = (numb+a*gamma)*modInverse(ranK, q) % q;
-  var arr = [];
-  arr.push(gamma);
-  arr.push(delta);
-  return arr;
-}
-
-function verify(numb, gamma, delta){
-  var e1 = numb*modInverse(delta, q);
-  var e2 = gamma*modInverse(delta, q);
-  var beta = power(alpha,a,p);
-  return gamma==((power(alpha,e1,p)*power(beta,e2,p))%p)%q;
-}
-
-var firma = sign(215, 50);
-console.log(firma);
-var valido = verify(255, firma[0], firma[1]);
-console.log(valido);
-
 function modInverse(a, mod) {
   // validate inputs
   [a, mod] = [Number(a), Number(mod)]
@@ -60,22 +26,6 @@ function modInverse(a, mod) {
   }
   return (y % mod + mod) % mod
 }
-/*
-[ 347, 173 ],
-  [ 439, 73 ],
-  [ 467, 233 ],
-  [ 563, 281 ],
-  [ 587, 293 ],
-  [ 607, 101 ]
-*/
-var alpha = 4;
-// p = 58907; q = 29453;
-var arr = [];
-var jump = 2;
-for (var i = 0; i < text.length / jump; i++) {
-  arr.push(Number("0x" + text.slice(i * jump, (i + 1) * jump)));
-}
-//console.log(arr);
 
 function power(x, y, p) {
   let res = 1;
@@ -93,17 +43,14 @@ function power(x, y, p) {
 
 function prime_factors(num) {
   function is_prime(num) {
-    for (let i = 2; i <= Math.sqrt(num); i++)
-    {
+    for (let i = 2; i <= Math.sqrt(num); i++) {
       if (num % i === 0) return false;
     }
     return true;
   }
   const result = [];
-  for (let i = 2; i <= num; i++)
-  {
-    while (is_prime(i) && num % i === 0) 
-    {
+  for (let i = 2; i <= num; i++) {
+    while (is_prime(i) && num % i === 0) {
       if (!result.includes(i)) result.push(i);
       num /= i;
     }
@@ -111,6 +58,12 @@ function prime_factors(num) {
   return result;
 }
 
+function gcd(a, b) {
+  if (a == 0)
+    return b;
+  return gcd(b % a, a);
+}
+//// KEY MANAGEMENT
 function sieveOfEratosthenes(n) {
   var array = [];
   var prime = Array.from({ length: n + 1 }, (_, i) => true);
@@ -121,50 +74,142 @@ function sieveOfEratosthenes(n) {
     }
   }
   for (var i = 2; i <= n; i++) {
-    if (prime[i] == true && i % 4 == 3) array.push(i);
+    if (prime[i] == true) array.push(i);
   }
   return array;
 }
 
-function gcd(a, b) {
-  if (a == 0)
-    return b;
-  return gcd(b % a, a);
-}
-function genRootOfUnity(n, q) {
-  var arr = [];
-  for (var i = 2; i < n; i++){
-    if(power(i,q,n)==1){
-      arr.push(i);
+function generatePandQ() {
+  var primes = sieveOfEratosthenes(maxNumber).slice(50);
+  var result = [];
+  for (var i = 0; i < primes.length; i++) {
+    var factorsPm1 = prime_factors(primes[i] - 1);
+    for (var j = 0; j < factorsPm1.length; j++) {
+      if (power(factorsPm1[j], factorsPm1[j], primes[i]) == 1) {
+        result.push([primes[i], factorsPm1[j]])
+      }
     }
   }
+  return result;
+}
+
+function getRandomInt(min, max) {
+  // random int in (min, max)
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+const maxNumber = 11000;
+const pAndQArr = generatePandQ();
+const pAndQArrLen = pAndQArr.length;
+
+function generateKey() {
+  var key = [];
+  var gen = [];
+  var ranNum = getRandomInt(0, pAndQArrLen);
+  var p = pAndQArr[ranNum][0];
+  var q = pAndQArr[ranNum][1];
+  //p
+  key.push(p);
+  //q
+  key.push(q);
+  // Get generators of p
+  /*
+  var factorPm1 = prime_factors(p - 1);
+  out:
+  for (var g = 2; g < p - 2; g++) {
+    for (var i = 0; i < factorPm1.length; i++) {
+      if (power(g, (p - 1) / factorPm1[i], p) == 1) {
+        continue out;
+      }
+    }
+    gen.push(g);
+  }
+  */
+  for (var g = 2; g < p - 1; g++) {
+    if (power(g, q, p) == 1) {
+      gen.push(g);
+    }
+  }
+  ranNum = getRandomInt(0, gen.length);
+  var alpha = gen[ranNum];
+  ranNum = getRandomInt(0, q - 1);
+  var a = ranNum;
+  var beta = power(alpha, a, p);
+  key.push(alpha);
+  key.push(beta);
+  key.push(a);
+  return key;
+}
+
+function signSha(shaString, p, q, alpha, a) {
+  var arr = [];
+  var signArr = [];
+  var jump = 2;
+  for (var i = 0; i < shaString.length / jump; i++) {
+    arr.push(Number("0x" + shaString.slice(i * jump, (i + 1) * jump)));
+  }
+  for (var i = 0; i < arr.length; i++) {
+    ranK = getRandomInt(1, q - 1);
+    signArr.push(sign(arr[i], p, q, alpha, a));
+  }
+
+  return signArr;
+}
+
+function sign(numb, p, q, alpha, a) { // k entre 1 y q
+  var ranK;
+  var gamma = 0;
+  var delta = 0;
+  while (gamma == 0 || delta == 0) {
+    ranK = getRandomInt(1, q - 1);
+    gamma = power(alpha, ranK, p) % q;
+    delta = ((numb + a * gamma) * modInverse(ranK, q)) % q;
+  }
+  var arr = [];
+  arr.push(gamma);
+  arr.push(delta);
   return arr;
 }
-/*
-var primes = sieveOfEratosthenes(100000).slice(100);
-//console.log(primes);
-var result = [];
-for(var i=0; i<primes.length; i++){
-  var factorsPm1 = prime_factors(primes[i]-1);
-  for (var j=0; j < factorsPm1.length; j++){
-    if(power(factorsPm1[j],factorsPm1[j],primes[i])==1){
-      result.push([primes[i], factorsPm1[j]])
-    }
-  } 
-}
-console.log(result[300]);
-*/
-/*
-var gen = [];
-var factorPm1 = prime_factors(p-1);
-out:
-for(var g=2; g<p-2; g++){
-  for(var i=0; i<factorPm1.length; i++){
-    if(power(g,(p-1)/factorPm1[i],p)==1){
-      continue out;
-    }
+
+function verifySha(shaString, signArr, p, q, alpha, beta) {
+  var arr = [];
+  var jump = 2;
+  for (var i = 0; i < shaString.length / jump; i++) {
+    arr.push(Number("0x" + shaString.slice(i * jump, (i + 1) * jump)));
   }
-  gen.push(g);
+  for (var i = 0; i < arr.length; i++) {
+    /*
+    if (!verify(arr[i], signArr[i][0], signArr[i][1], p, q, alpha, beta)) {
+      console.log('MUERE EN ' + arr[i])
+    } else {
+      console.log('CORRECTO PARA ' + arr[i])
+    }
+    */
+    if (!verify(arr[i], signArr[i][0], signArr[i][1], p, q, alpha, beta)) return false;
+  }
+  return true;
 }
-console.log(gen);
+
+function verify(numb, gamma, delta, p, q, alpha, beta) {
+  var e1 = numb * modInverse(delta, q) % q;
+  var e2 = gamma * modInverse(delta, q) % q;
+  return gamma === ((power(alpha, e1, p) * power(beta, e2, p)) % p) % q;
+}
+
+var text = '50137ab0be5e0c73ee0cd747f457e71822d6d5dcf00a7e807ed283467e42ffff';
+var text2 = '50137ab0be5e0c73ee0cd747f457e71822d6d5dcf00a7e801ed283467e42ffff';
+var llave = generateKey(); // [p, q, alpha, beta, a]
+console.log(llave);
+var firma = signSha(text, llave[0], llave[1], llave[2], llave[4]);
+console.log(firma);
+console.log(verifySha(text, firma, llave[0], llave[1], llave[2], llave[3]));
+
+/*
+var llave = generateKey();
+console.log(llave);
+var test = getRandomInt(0, 255);
+var ranK = getRandomInt(1, llave[1] - 1);
+var firma = sign(test, llave[0], llave[1], llave[2], llave[4]);
+console.log(firma);
+console.log(verify(test+1, firma[0], firma[1], llave[0], llave[1], llave[2], llave[3]));
 */
